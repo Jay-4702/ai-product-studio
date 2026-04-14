@@ -1095,12 +1095,12 @@
 
     <script>
         // --- GLOBAL DATA SOURCE ---
-        const API_URL = 'http://localhost:3000/api';
+        const API_URL = '/api';
         let globalData = { visits: 0, leads: [] };
         let currentFilter = null;
 
         // --- SOCKET.IO REALTIME ---
-        const socket = io('http://localhost:3000');
+        const socket = io();
         socket.on('dashboard_update', (data) => {
             globalData = data;
             renderAll(); // Re-render the dashboard whenever someone submits a form
