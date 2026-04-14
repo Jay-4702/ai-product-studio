@@ -11,8 +11,10 @@ const io = new Server(server, {
     cors: { origin: "*" }
 });
 
+// Middleware setup
 app.use(cors());
-app.use(express.json());
+app.use(express.json()); // <-- The critical line that allows your server to read form data!
+app.use(express.static(__dirname));
 
 // Simple file-based database
 const dbPath = path.join(__dirname, 'database.json');
