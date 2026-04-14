@@ -1,0 +1,1383 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin — AI Product Studio</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@300;400;500;600&display=swap"
+        rel="stylesheet">
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0
+        }
+
+        :root {
+            --bg: #0a0a0c;
+            --surface: #141416;
+            --surface2: #1c1c1e;
+            --border: rgba(255, 255, 255, .08);
+            --white: #fff;
+            --mid: #6e6e73;
+            --accent: #ff6b35;
+            --accent2: #ff8c5a;
+            --green: #34c759;
+            --red: #ff4444;
+            --blue: #4f8cff;
+            --font-serif: 'Playfair Display', serif;
+            --font-sans: 'Inter', sans-serif;
+            --ease: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background: var(--bg);
+            color: var(--white);
+            -webkit-font-smoothing: antialiased;
+            min-height: 100vh
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit
+        }
+
+        button {
+            cursor: pointer;
+            font-family: inherit
+        }
+
+        /* LOGIN */
+        #loginWrap {
+            position: fixed;
+            inset: 0;
+            background: var(--bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 999
+        }
+
+        .login-box {
+            background: var(--surface);
+            border: .5px solid var(--border);
+            border-radius: 24px;
+            padding: 56px 48px;
+            width: 100%;
+            max-width: 400px;
+            text-align: center
+        }
+
+        .login-logo {
+            font-family: var(--font-serif);
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px
+        }
+
+        .login-mark {
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            background: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-sans);
+            font-size: 11px;
+            font-weight: 700
+        }
+
+        .login-sub {
+            font-size: 13px;
+            color: var(--mid);
+            margin-bottom: 36px
+        }
+
+        .login-lbl {
+            display: block;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: .1em;
+            text-transform: uppercase;
+            color: var(--mid);
+            margin-bottom: 8px;
+            text-align: left
+        }
+
+        .login-input {
+            width: 100%;
+            background: rgba(255, 255, 255, .05);
+            border: .5px solid rgba(255, 255, 255, .1);
+            border-radius: 10px;
+            padding: 13px 16px;
+            color: var(--white);
+            font-size: 14px;
+            outline: none;
+            margin-bottom: 20px;
+            transition: all .2s;
+            font-family: var(--font-sans)
+        }
+
+        .login-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(255, 107, 53, .1)
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            border-radius: 980px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all .3s var(--ease);
+            box-shadow: 0 4px 20px rgba(255, 107, 53, .4)
+        }
+
+        .login-btn:hover {
+            background: var(--accent2);
+            transform: scale(1.02)
+        }
+
+        .login-err {
+            font-size: 13px;
+            color: var(--red);
+            margin-top: 12px;
+            display: none
+        }
+
+        /* DASHBOARD */
+        #dashWrap {
+            display: none;
+            min-height: 100vh
+        }
+
+        /* TOP BAR */
+        .topbar {
+            height: 56px;
+            background: rgba(10, 10, 12, .95);
+            backdrop-filter: blur(20px);
+            border-bottom: .5px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 32px;
+            position: sticky;
+            top: 0;
+            z-index: 100
+        }
+
+        .topbar-logo {
+            font-family: var(--font-serif);
+            font-size: 16px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px
+        }
+
+        .topbar-mark {
+            width: 24px;
+            height: 24px;
+            border-radius: 7px;
+            background: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-sans);
+            font-size: 10px;
+            font-weight: 700
+        }
+
+        .topbar-badge {
+            background: rgba(255, 107, 53, .1);
+            border: .5px solid rgba(255, 107, 53, .2);
+            color: var(--accent);
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: .08em;
+            padding: 4px 12px;
+            border-radius: 980px
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 16px
+        }
+
+        .topbar-time {
+            font-size: 12px;
+            color: var(--mid)
+        }
+
+        .logout-btn {
+            background: rgba(255, 255, 255, .07);
+            border: .5px solid var(--border);
+            color: var(--mid);
+            font-size: 12px;
+            padding: 6px 14px;
+            border-radius: 980px;
+            transition: all .2s
+        }
+
+        .logout-btn:hover {
+            color: var(--white);
+            border-color: rgba(255, 255, 255, .2)
+        }
+
+        /* LAYOUT */
+        .dash-layout {
+            display: grid;
+            grid-template-columns: 220px 1fr;
+            min-height: calc(100vh - 56px)
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            background: var(--surface);
+            border-right: .5px solid var(--border);
+            padding: 24px 0
+        }
+
+        .nav-section {
+            margin-bottom: 8px
+        }
+
+        .nav-section-lbl {
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: .14em;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, .2);
+            padding: 0 20px;
+            margin-bottom: 8px;
+            margin-top: 16px
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 20px;
+            font-size: 13px;
+            font-weight: 400;
+            color: var(--mid);
+            transition: all .2s;
+            cursor: pointer
+        }
+
+        .nav-item:hover {
+            color: var(--white);
+            background: rgba(255, 255, 255, .04)
+        }
+
+        .nav-item.active {
+            color: var(--white);
+            background: rgba(255, 107, 53, .08);
+            border-right: 2px solid var(--accent)
+        }
+
+        .nav-ico {
+            font-size: 15px;
+            min-width: 18px
+        }
+
+        .nav-badge {
+            margin-left: auto;
+            background: var(--accent);
+            color: #fff;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 7px;
+            border-radius: 980px;
+            min-width: 20px;
+            text-align: center
+        }
+
+        /* MAIN */
+        .main {
+            padding: 32px;
+            overflow-y: auto;
+            background: var(--bg)
+        }
+
+        /* PAGE HEADER */
+        .page-hdr {
+            margin-bottom: 32px
+        }
+
+        .page-hdr h1 {
+            font-family: var(--font-serif);
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: -.02em;
+            margin-bottom: 4px
+        }
+
+        .page-hdr p {
+            font-size: 14px;
+            color: var(--mid)
+        }
+
+        /* METRIC CARDS */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 32px
+        }
+
+        .metric-card {
+            background: var(--surface);
+            border: .5px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            position: relative;
+            overflow: hidden;
+            transition: all .3s
+        }
+
+        .metric-card:hover {
+            border-color: rgba(255, 255, 255, .14);
+            transform: translateY(-2px)
+        }
+
+        .metric-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 107, 53, .4), transparent)
+        }
+
+        .metric-ico {
+            font-size: 22px;
+            margin-bottom: 14px
+        }
+
+        .metric-val {
+            font-family: var(--font-serif);
+            font-size: 36px;
+            font-weight: 700;
+            letter-spacing: -.03em;
+            line-height: 1;
+            margin-bottom: 4px
+        }
+
+        .metric-val.green {
+            color: var(--green)
+        }
+
+        .metric-val.blue {
+            color: var(--blue)
+        }
+
+        .metric-val.orange {
+            color: var(--accent)
+        }
+
+        .metric-lbl {
+            font-size: 11px;
+            letter-spacing: .1em;
+            text-transform: uppercase;
+            color: var(--mid)
+        }
+
+        .metric-change {
+            font-size: 11px;
+            color: var(--green);
+            margin-top: 6px;
+            font-weight: 500
+        }
+
+        /* CHARTS ROW */
+        .charts-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 32px
+        }
+
+        .chart-card {
+            background: var(--surface);
+            border: .5px solid var(--border);
+            border-radius: 16px;
+            padding: 24px
+        }
+
+        .chart-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--white);
+            margin-bottom: 4px
+        }
+
+        .chart-sub {
+            font-size: 12px;
+            color: var(--mid);
+            margin-bottom: 20px
+        }
+
+        /* Mini bar chart */
+        .bar-chart {
+            display: flex;
+            align-items: flex-end;
+            gap: 8px;
+            height: 80px
+        }
+
+        .bar {
+            flex: 1;
+            border-radius: 4px 4px 0 0;
+            background: rgba(255, 107, 53, .15);
+            border: .5px solid rgba(255, 107, 53, .2);
+            position: relative;
+            min-height: 4px;
+            transition: all .6s var(--ease)
+        }
+
+        .bar:hover {
+            background: rgba(255, 107, 53, .3)
+        }
+
+        .bar-lbl {
+            position: absolute;
+            bottom: -18px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 9px;
+            color: var(--mid);
+            white-space: nowrap
+        }
+
+        /* Category donut (CSS-only) */
+        .donut-wrap {
+            display: flex;
+            align-items: center;
+            gap: 24px
+        }
+
+        .donut {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            flex-shrink: 0
+        }
+
+        .donut-legend {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            flex: 1
+        }
+
+        .dl-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: var(--mid)
+        }
+
+        .dl-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            flex-shrink: 0
+        }
+
+        .dl-pct {
+            margin-left: auto;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--white)
+        }
+
+        /* LEADS TABLE */
+        .table-card {
+            background: var(--surface);
+            border: .5px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+            margin-bottom: 32px
+        }
+
+        .table-hdr {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 24px;
+            border-bottom: .5px solid var(--border)
+        }
+
+        .table-title {
+            font-size: 14px;
+            font-weight: 600
+        }
+
+        .table-actions {
+            display: flex;
+            gap: 10px
+        }
+
+        .tbl-btn {
+            background: rgba(255, 255, 255, .06);
+            border: .5px solid var(--border);
+            color: var(--mid);
+            font-size: 12px;
+            padding: 6px 14px;
+            border-radius: 8px;
+            transition: all .2s
+        }
+
+        .tbl-btn:hover {
+            color: var(--white);
+            border-color: rgba(255, 255, 255, .18)
+        }
+
+        .tbl-btn.accent {
+            background: rgba(255, 107, 53, .1);
+            border-color: rgba(255, 107, 53, .25);
+            color: var(--accent)
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse
+        }
+
+        thead th {
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: .12em;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, .25);
+            padding: 12px 24px;
+            text-align: left;
+            border-bottom: .5px solid var(--border);
+            white-space: nowrap
+        }
+
+        tbody tr {
+            border-bottom: .5px solid rgba(255, 255, 255, .04);
+            transition: background .2s
+        }
+
+        tbody tr:hover {
+            background: rgba(255, 255, 255, .03)
+        }
+
+        tbody tr:last-child {
+            border-bottom: none
+        }
+
+        td {
+            padding: 14px 24px;
+            font-size: 13px;
+            color: var(--mid);
+            vertical-align: middle
+        }
+
+        td:first-child {
+            color: var(--white);
+            font-weight: 500
+        }
+
+        .td-badge {
+            display: inline-flex;
+            padding: 3px 10px;
+            border-radius: 980px;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: .06em
+        }
+
+        .td-badge.new {
+            background: rgba(52, 199, 89, .12);
+            color: var(--green);
+            border: .5px solid rgba(52, 199, 89, .25)
+        }
+
+        .td-badge.growth {
+            background: rgba(255, 107, 53, .12);
+            color: var(--accent);
+            border: .5px solid rgba(255, 107, 53, .25)
+        }
+
+        .td-badge.pro {
+            background: rgba(79, 140, 255, .12);
+            color: var(--blue);
+            border: .5px solid rgba(79, 140, 255, .25)
+        }
+
+        .td-badge.starter {
+            background: rgba(212, 168, 83, .12);
+            color: var(--gold, #d4a853);
+            border: .5px solid rgba(212, 168, 83, .25)
+        }
+
+        .td-badge.unknown {
+            background: rgba(255, 255, 255, .06);
+            color: var(--mid);
+            border: .5px solid var(--border)
+        }
+
+        .action-btns {
+            display: flex;
+            gap: 8px
+        }
+
+        .act-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            border: none;
+            background: rgba(255, 255, 255, .05);
+            transition: all .2s;
+            cursor: pointer;
+        }
+
+        .act-btn:hover {
+            background: rgba(255, 255, 255, .1);
+            transform: scale(1.1)
+        }
+
+        /* EMPTY STATE */
+        .empty-state {
+            text-align: center;
+            padding: 60px 24px;
+            color: var(--mid)
+        }
+
+        .empty-ico {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: .4
+        }
+
+        .empty-txt {
+            font-size: 15px;
+            margin-bottom: 8px;
+            color: rgba(255, 255, 255, .4)
+        }
+
+        .empty-sub {
+            font-size: 13px
+        }
+
+        /* RECENT ACTIVITY */
+        .activity-card {
+            background: var(--surface);
+            border: .5px solid var(--border);
+            border-radius: 16px;
+            padding: 24px
+        }
+
+        .activity-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 20px
+        }
+
+        .activity-list {
+            display: flex;
+            flex-direction: column;
+            gap: 14px
+        }
+
+        .act-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px
+        }
+
+        .act-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            margin-top: 5px
+        }
+
+        .act-content {
+            flex: 1
+        }
+
+        .act-text {
+            font-size: 13px;
+            color: var(--white);
+            line-height: 1.5
+        }
+
+        .act-time {
+            font-size: 11px;
+            color: rgba(255, 255, 255, .3);
+            margin-top: 3px
+        }
+
+        /* SETTINGS PAGE */
+        .settings-section {
+            background: var(--surface);
+            border: .5px solid var(--border);
+            border-radius: 16px;
+            padding: 28px;
+            margin-bottom: 20px
+        }
+
+        .settings-section h3 {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 4px
+        }
+
+        .settings-section p {
+            font-size: 13px;
+            color: var(--mid);
+            margin-bottom: 20px
+        }
+
+        .setting-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 0;
+            border-bottom: .5px solid rgba(255, 255, 255, .05)
+        }
+
+        .setting-row:last-child {
+            border-bottom: none
+        }
+
+        .setting-lbl {
+            font-size: 13px;
+            color: var(--white)
+        }
+
+        .setting-desc {
+            font-size: 12px;
+            color: var(--mid);
+            margin-top: 2px
+        }
+
+        .toggle {
+            width: 44px;
+            height: 24px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, .1);
+            position: relative;
+            transition: all .3s;
+            cursor: pointer;
+            border: .5px solid rgba(255, 255, 255, .1)
+        }
+
+        .toggle.on {
+            background: var(--green)
+        }
+
+        .toggle::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #fff;
+            transition: transform .3s;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, .3)
+        }
+
+        .toggle.on::after {
+            transform: translateX(20px)
+        }
+
+        /* TABS */
+        .tab-bar {
+            display: flex;
+            gap: 4px;
+            background: rgba(255, 255, 255, .04);
+            border-radius: 10px;
+            padding: 4px;
+            margin-bottom: 24px;
+            width: fit-content
+        }
+
+        .tab {
+            padding: 7px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 400;
+            color: var(--mid);
+            transition: all .2s;
+            cursor: pointer;
+            border: none;
+            background: none
+        }
+
+        .tab.active {
+            background: var(--surface2);
+            color: var(--white);
+            font-weight: 500
+        }
+
+        /* VIEWS */
+        .view {
+            display: none
+        }
+
+        .view.active {
+            display: block
+        }
+
+        @media(max-width:900px) {
+            .dash-layout {
+                grid-template-columns: 1fr
+            }
+
+            .sidebar {
+                display: none
+            }
+
+            .metrics-grid {
+                grid-template-columns: 1fr 1fr
+            }
+
+            .charts-row {
+                grid-template-columns: 1fr
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="loginWrap">
+        <div class="login-box">
+            <div class="login-logo">
+                <div class="login-mark">AI</div>
+                AI Product Studio
+            </div>
+            <p class="login-sub">Admin Dashboard — Restricted Access</p>
+            <label class="login-lbl">Password</label>
+            <input type="password" class="login-input" id="pwdInput" placeholder="Enter admin password"
+                onkeydown="if(event.key==='Enter')doLogin()">
+            <button class="login-btn" onclick="doLogin()">Access Dashboard →</button>
+            <div class="login-err" id="loginErr">Incorrect password. Try again.</div>
+        </div>
+    </div>
+
+    <div id="dashWrap">
+        <div class="topbar">
+            <div class="topbar-logo">
+                <div class="topbar-mark">AI</div>
+                AI Product Studio
+                <span class="topbar-badge">Admin Live</span>
+            </div>
+            <div class="topbar-right">
+                <span class="topbar-time" id="liveTime"></span>
+                <button class="logout-btn" onclick="doLogout()">Sign Out</button>
+            </div>
+        </div>
+
+        <div class="dash-layout">
+            <div class="sidebar">
+                <div class="nav-section">
+                    <div class="nav-section-lbl">Overview</div>
+                    <div class="nav-item active" onclick="showView('overview',this)">
+                        <span class="nav-ico">📊</span> Dashboard
+                    </div>
+                    <div class="nav-item" onclick="showView('leads',this)">
+                        <span class="nav-ico">👥</span> Leads
+                        <span class="nav-badge" id="sideLeadCount">0</span>
+                    </div>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-lbl">Analytics</div>
+                    <div class="nav-item" onclick="showView('analytics',this)">
+                        <span class="nav-ico">📈</span> Visitors
+                    </div>
+                    <div class="nav-item" onclick="showView('settings',this)">
+                        <span class="nav-ico">⚙️</span> Settings
+                    </div>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-lbl">Quick Links</div>
+                    <div class="nav-item" onclick="window.open('/','_blank')">
+                        <span class="nav-ico">🌐</span> View Website
+                    </div>
+                    <div class="nav-item" onclick="window.open('https://wa.me/393509817420','_blank')">
+                        <span class="nav-ico">💬</span> WhatsApp
+                    </div>
+                </div>
+            </div>
+
+            <div class="main">
+                <div class="view active" id="view-overview">
+                    <div class="page-hdr">
+                        <h1>Dashboard</h1>
+                        <p id="welcomeLine">Good day — here's what's happening with your store.</p>
+                    </div>
+
+                    <div class="metrics-grid" id="metricsGrid">
+                        <div class="metric-card">
+                            <div class="metric-ico">👁️</div>
+                            <div class="metric-val blue" id="mv-visits">0</div>
+                            <div class="metric-lbl">Total Visits</div>
+                            <div class="metric-change">Live API Data</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-ico">📥</div>
+                            <div class="metric-val green" id="mv-leads">0</div>
+                            <div class="metric-lbl">Total Leads</div>
+                            <div class="metric-change" id="mv-leads-today">0 today</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-ico">💰</div>
+                            <div class="metric-val orange" id="mv-value">€0</div>
+                            <div class="metric-lbl">Pipeline Value</div>
+                            <div class="metric-change">Estimated from packages</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-ico">⚡</div>
+                            <div class="metric-val" id="mv-rate">0%</div>
+                            <div class="metric-lbl">Submission Rate</div>
+                            <div class="metric-change">Visits → Leads</div>
+                        </div>
+                    </div>
+
+                    <div class="charts-row">
+                        <div class="chart-card">
+                            <div class="chart-title">Leads by Day (Last 7 Days)</div>
+                            <div class="chart-sub">New form submissions per day</div>
+                            <div class="bar-chart" id="barChart"></div>
+                            <div style="height:18px"></div>
+                        </div>
+                        <div class="chart-card">
+                            <div class="chart-title">Package Interest</div>
+                            <div class="chart-sub">Distribution of requested packages</div>
+                            <div class="donut-wrap" id="donutWrap">
+                                <canvas class="donut" id="donutCanvas" width="90" height="90"></canvas>
+                                <div class="donut-legend" id="donutLegend"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="table-card">
+                        <div class="table-hdr">
+                            <div class="table-title">Recent Leads</div>
+                            <div class="table-actions">
+                                <button class="tbl-btn accent" onclick="showView('leads',null)">View All →</button>
+                            </div>
+                        </div>
+                        <div id="recentLeadsTable"></div>
+                    </div>
+
+                    <div class="activity-card">
+                        <div class="activity-title">Live Activity</div>
+                        <div class="activity-list" id="activityList"></div>
+                    </div>
+                </div>
+
+                <div class="view" id="view-leads">
+                    <div class="page-hdr">
+                        <h1>All Leads</h1>
+                        <p>Complete list of form submissions and contact requests.</p>
+                    </div>
+                    <div class="tab-bar">
+                        <button class="tab active" onclick="filterLeads('all',this)">All</button>
+                        <button class="tab" onclick="filterLeads('Growth',this)">Growth</button>
+                        <button class="tab" onclick="filterLeads('Pro',this)">Pro</button>
+                        <button class="tab" onclick="filterLeads('Starter',this)">Starter</button>
+                    </div>
+                    <div class="table-card">
+                        <div class="table-hdr">
+                            <div class="table-title" id="leadsTableTitle">All Leads</div>
+                            <div class="table-actions">
+                                <button class="tbl-btn" onclick="exportCSV()">⬇ Export CSV</button>
+                                <button class="tbl-btn" style="color:var(--red)"
+                                    onclick="if(confirm('Clear ALL leads? This cannot be undone.'))clearLeads()">🗑
+                                    Clear All</button>
+                            </div>
+                        </div>
+                        <div id="allLeadsTable"></div>
+                    </div>
+                </div>
+
+                <div class="view" id="view-analytics">
+                    <div class="page-hdr">
+                        <h1>Visitor Analytics</h1>
+                        <p>Live metrics from the backend API.</p>
+                    </div>
+                    <div class="metrics-grid" style="grid-template-columns:repeat(3,1fr)">
+                        <div class="metric-card">
+                            <div class="metric-ico">🌍</div>
+                            <div class="metric-val blue" id="an-visits">0</div>
+                            <div class="metric-lbl">Total Sessions</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-ico">📅</div>
+                            <div class="metric-val" id="an-last">Live</div>
+                            <div class="metric-lbl">Last Visit</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-ico">📊</div>
+                            <div class="metric-val green" id="an-rate">0%</div>
+                            <div class="metric-lbl">Lead Rate</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="view" id="view-settings">
+                    <div class="page-hdr">
+                        <h1>Settings</h1>
+                    </div>
+                    <div class="settings-section">
+                        <h3>Security</h3>
+                        <p>Update your admin password. Use a strong, unique password.</p>
+                        <div class="setting-row">
+                            <div>
+                                <div class="setting-lbl">Current Password</div>
+                            </div>
+                            <input type="password" class="login-input" id="old-pwd" placeholder="Current password"
+                                style="width:220px;margin-bottom:0">
+                        </div>
+                        <div class="setting-row">
+                            <div>
+                                <div class="setting-lbl">New Password</div>
+                            </div>
+                            <input type="password" class="login-input" id="new-pwd" placeholder="New password"
+                                style="width:220px;margin-bottom:0">
+                        </div>
+                        <div style="padding-top:16px">
+                            <button class="tbl-btn accent" onclick="changePwd()">Update Password</button>
+                            <span id="pwdMsg" style="font-size:12px;color:var(--green);margin-left:12px"></span>
+                        </div>
+                    </div>
+                    <div class="settings-section">
+                        <h3>Data Management</h3>
+                        <p>Manage data hosted on your Node.js backend.</p>
+                        <div style="display:flex;gap:12px;flex-wrap:wrap">
+                            <button class="tbl-btn accent" onclick="exportCSV()">⬇ Export All Leads (CSV)</button>
+                            <button class="tbl-btn"
+                                onclick="if(confirm('Reset visit counter on Server?'))resetVisits()">Reset Server
+                                Visits</button>
+                            <button class="tbl-btn" style="color:var(--red)"
+                                onclick="if(confirm('Clear ALL data? Cannot be undone.'))clearLeads()">⚠ Clear All
+                                Leads</button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- GLOBAL DATA SOURCE ---
+        const API_URL = 'http://localhost:3000/api';
+        let globalData = { visits: 0, leads: [] };
+        let currentFilter = null;
+
+        // --- SOCKET.IO REALTIME ---
+        const socket = io('http://localhost:3000');
+        socket.on('dashboard_update', (data) => {
+            globalData = data;
+            renderAll(); // Re-render the dashboard whenever someone submits a form
+        });
+
+        // ─── AUTH ───
+        const DEFAULT_PWD = 'admin2024';
+        let adminPwd = localStorage.getItem('aps_admin_pwd') || DEFAULT_PWD;
+        let authed = sessionStorage.getItem('aps_authed') === '1';
+
+        if (authed) { showDash(); }
+        else { document.getElementById('loginWrap').style.display = 'flex'; }
+
+        function doLogin() {
+            const v = document.getElementById('pwdInput').value;
+            if (v === adminPwd) {
+                sessionStorage.setItem('aps_authed', '1');
+                showDash();
+            } else {
+                document.getElementById('loginErr').style.display = 'block';
+                document.getElementById('pwdInput').value = '';
+            }
+        }
+        function doLogout() {
+            sessionStorage.removeItem('aps_authed');
+            location.reload();
+        }
+        function showDash() {
+            document.getElementById('loginWrap').style.display = 'none';
+            document.getElementById('dashWrap').style.display = 'block';
+            // Fetch initial state if socket is slow
+            fetch(`${API_URL}/dashboard`)
+                .then(r => r.json())
+                .then(data => { globalData = data; renderAll(); });
+        }
+        function changePwd() {
+            const oldV = document.getElementById('old-pwd').value;
+            const newV = document.getElementById('new-pwd').value;
+            const msg = document.getElementById('pwdMsg');
+            if (oldV !== adminPwd) { msg.style.color = 'var(--red)'; msg.textContent = 'Incorrect current password.'; return; }
+            if (newV.length < 6) { msg.style.color = 'var(--red)'; msg.textContent = 'Password must be 6+ characters.'; return; }
+            localStorage.setItem('aps_admin_pwd', newV);
+            adminPwd = newV;
+            msg.style.color = 'var(--green)'; msg.textContent = 'Password updated!';
+            document.getElementById('old-pwd').value = '';
+            document.getElementById('new-pwd').value = '';
+            setTimeout(() => msg.textContent = '', 3000);
+        }
+
+        // ─── LIVE CLOCK ───
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('liveTime').textContent = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + ' · ' + now.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
+        }
+        setInterval(updateClock, 1000); updateClock();
+
+        // ─── WELCOME ───
+        function welcomeMsg() {
+            const h = new Date().getHours();
+            document.getElementById('welcomeLine').textContent = `${h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening'} — here's what's happening with your store.`;
+        }
+        welcomeMsg();
+
+        // ─── PACKAGE VALUE ───
+        const pkgValues = { 'Starter — €297': 297, 'Growth — €647': 647, 'Pro — €997': 997, 'Not specified': 0, 'Not sure yet': 0, '': 0 };
+        function pkgValue(p) { for (const [k, v] of Object.entries(pkgValues)) { if (p && p.includes(k.split('—')[0].trim())) return v; } return 0; }
+        function pkgClass(p) {
+            if (!p) return 'unknown';
+            if (p.includes('Growth')) return 'growth';
+            if (p.includes('Pro')) return 'pro';
+            if (p.includes('Starter')) return 'starter';
+            return 'unknown';
+        }
+
+        // ─── RENDER ALL ───
+        function renderAll() {
+            const leads = globalData.leads || [];
+            const visits = globalData.visits || 0;
+            const today = new Date().toDateString();
+            const todayLeads = leads.filter(l => new Date(l.date).toDateString() === today).length;
+            const totalValue = leads.reduce((a, l) => a + pkgValue(l.package), 0);
+            const rate = visits > 0 ? Math.round((leads.length / visits) * 100) : 0;
+
+            // Metrics
+            document.getElementById('mv-visits').textContent = visits.toLocaleString();
+            document.getElementById('mv-leads').textContent = leads.length;
+            document.getElementById('mv-leads-today').textContent = todayLeads + ' today';
+            document.getElementById('mv-value').textContent = '€' + totalValue.toLocaleString();
+            document.getElementById('mv-rate').textContent = rate + '%';
+            document.getElementById('sideLeadCount').textContent = leads.length;
+
+            // Analytics view
+            document.getElementById('an-visits').textContent = visits.toLocaleString();
+            document.getElementById('an-rate').textContent = rate + '%';
+
+            renderBarChart(leads);
+            renderDonut(leads);
+            renderRecentLeads(leads.slice(-5).reverse());
+            renderAllLeads(leads, currentFilter);
+            renderActivity(leads);
+        }
+
+        // ─── CHARTS ───
+        function renderBarChart(leads) {
+            const bc = document.getElementById('barChart');
+            if (!bc) return;
+            bc.innerHTML = '';
+            const days = [];
+            for (let i = 6; i >= 0; i--) {
+                const d = new Date(); d.setDate(d.getDate() - i);
+                days.push({ label: d.toLocaleDateString('en-GB', { weekday: 'short' }), date: d.toDateString() });
+            }
+            const maxC = Math.max(1, ...days.map(d => leads.filter(l => new Date(l.date).toDateString() === d.date).length));
+            days.forEach(d => {
+                const count = leads.filter(l => new Date(l.date).toDateString() === d.date).length;
+                const pct = (count / maxC) * 100;
+                const bar = document.createElement('div');
+                bar.className = 'bar';
+                bar.style.height = (Math.max(pct, 3)) + '%';
+                if (count > 0) bar.style.background = 'rgba(255,107,53,.35)';
+                bar.title = `${d.label}: ${count} leads`;
+                bar.innerHTML = `<span class="bar-lbl">${d.label}</span>`;
+                if (count > 0) {
+                    const cnt = document.createElement('div');
+                    cnt.style.cssText = 'position:absolute;top:-18px;left:50%;transform:translateX(-50%);font-size:10px;color:var(--accent);font-weight:600';
+                    cnt.textContent = count;
+                    bar.appendChild(cnt);
+                }
+                bc.appendChild(bar);
+            });
+        }
+
+        function renderDonut(leads) {
+            const pkgCounts = { Starter: 0, Growth: 0, Pro: 0, Other: 0 };
+            leads.forEach(l => {
+                if (!l.package || l.package === 'Not sure yet' || l.package === 'Not specified' || l.package === '') { pkgCounts.Other++; }
+                else if (l.package.includes('Starter')) pkgCounts.Starter++;
+                else if (l.package.includes('Growth')) pkgCounts.Growth++;
+                else if (l.package.includes('Pro')) pkgCounts.Pro++;
+                else pkgCounts.Other++;
+            });
+            const total = Object.values(pkgCounts).reduce((a, b) => a + b, 0) || 1;
+            const colors = { Starter: '#d4a853', Growth: '#ff6b35', Pro: '#4f8cff', Other: '#6e6e73' };
+            const canvas = document.getElementById('donutCanvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const cx = 45, cy = 45, r = 38, ir = 22;
+            ctx.clearRect(0, 0, 90, 90);
+            let startAngle = -Math.PI / 2;
+            Object.entries(pkgCounts).forEach(([k, v]) => {
+                const slice = (v / total) * 2 * Math.PI;
+                ctx.beginPath();
+                ctx.moveTo(cx, cy);
+                ctx.arc(cx, cy, r, startAngle, startAngle + slice);
+                ctx.closePath();
+                ctx.fillStyle = colors[k];
+                ctx.fill();
+                startAngle += slice;
+            });
+            ctx.beginPath();
+            ctx.arc(cx, cy, ir, 0, 2 * Math.PI);
+            ctx.fillStyle = '#141416';
+            ctx.fill();
+            ctx.fillStyle = '#fff';
+            ctx.font = 'bold 14px Inter';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(total, cx, cy);
+
+            const legend = document.getElementById('donutLegend');
+            if (legend) {
+                legend.innerHTML = '';
+                Object.entries(pkgCounts).forEach(([k, v]) => {
+                    const pct = Math.round((v / total) * 100);
+                    legend.innerHTML += `<div class="dl-item"><div class="dl-dot" style="background:${colors[k]}"></div>${k}<span class="dl-pct">${pct}%</span></div>`;
+                });
+            }
+        }
+
+        // ─── TABLES ───
+        function renderRecentLeads(leads) {
+            const c = document.getElementById('recentLeadsTable');
+            if (!c) return;
+            if (!leads.length) { c.innerHTML = '<div class="empty-state"><div class="empty-ico">📭</div><div class="empty-txt">No leads yet</div><div class="empty-sub">Form submissions will appear here</div></div>'; return; }
+            c.innerHTML = buildTable(leads);
+        }
+        function renderAllLeads(leads, filter = null) {
+            const c = document.getElementById('allLeadsTable');
+            if (!c) return;
+            const filtered = filter ? leads.filter(l => l.package && l.package.includes(filter)) : leads;
+            document.getElementById('leadsTableTitle').textContent = filter ? `${filter} Leads` : 'All Leads';
+            if (!filtered.length) { c.innerHTML = '<div class="empty-state"><div class="empty-ico">📭</div><div class="empty-txt">No leads yet</div><div class="empty-sub">Form submissions will appear here</div></div>'; return; }
+            c.innerHTML = buildTable([...filtered].reverse());
+        }
+        function buildTable(leads) {
+            return `<table>
+    <thead><tr>
+      <th>Name</th><th>Email</th><th>Category</th><th>Package</th><th>ASIN</th><th>Date</th><th>Actions</th>
+    </tr></thead>
+    <tbody>${leads.map(l => `<tr>
+      <td>${l.name || '—'}</td>
+      <td style="color:var(--mid)">${l.email || '—'}</td>
+      <td>${l.category || '—'}</td>
+      <td><span class="td-badge ${pkgClass(l.package)}">${(l.package || 'Unknown').split('—')[0].trim()}</span></td>
+      <td style="font-size:12px;font-family:monospace">${(l.asin || '—').substring(0, 20)}</td>
+      <td style="font-size:12px">${new Date(l.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</td>
+      <td><div class="action-btns">
+        <button class="act-btn" title="WhatsApp" onclick="contactWA('${encodeURIComponent(l.email || '')}','${encodeURIComponent(l.name || '')}')">💬</button>
+        <button class="act-btn" title="Email" onclick="window.open('mailto:${l.email}','_blank')">✉️</button>
+        <button class="act-btn" title="Delete" onclick="deleteLead(${l.id})">🗑</button>
+      </div></td>
+    </tr>`).join('')}
+    </tbody>
+  </table>`;
+        }
+        function renderActivity(leads) {
+            const c = document.getElementById('activityList');
+            if (!c) return;
+            const items = [...leads].reverse().slice(0, 8);
+            if (!items.length) { c.innerHTML = '<div style="color:var(--mid);font-size:13px">No activity yet.</div>'; return; }
+            const colors = ['var(--accent)', 'var(--green)', 'var(--blue)', '#d4a853'];
+            c.innerHTML = items.map((l, i) => `
+    <div class="act-item">
+      <div class="act-dot" style="background:${colors[i % 4]}"></div>
+      <div class="act-content">
+        <div class="act-text"><strong>${l.name}</strong> requested a free sample — <em>${(l.package || 'Package TBD').split('—')[0].trim()}</em></div>
+        <div class="act-time">${new Date(l.date).toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</div>
+      </div>
+    </div>`).join('');
+        }
+
+        // ─── API ACTIONS ───
+        function filterLeads(filter, btn) {
+            document.querySelectorAll('.tab-bar .tab').forEach(t => t.classList.remove('active'));
+            if (btn) btn.classList.add('active');
+            currentFilter = filter === 'all' ? null : filter;
+            renderAllLeads(globalData.leads, currentFilter);
+        }
+
+        function contactWA(email, name) {
+            const msg = encodeURIComponent(`Hi ${decodeURIComponent(name)}, following up on your AI Product Studio request. Are you ready to get started?`);
+            window.open(`https://wa.me/393509817420?text=${msg}`, '_blank');
+        }
+
+        async function deleteLead(id) {
+            if (!confirm('Delete this lead?')) return;
+            await fetch(`${API_URL}/leads/${id}`, { method: 'DELETE' });
+        }
+
+        async function clearLeads() {
+            await fetch(`${API_URL}/leads`, { method: 'DELETE' });
+        }
+
+        async function resetVisits() {
+            await fetch(`${API_URL}/visits`, { method: 'DELETE' });
+        }
+
+        // ─── EXPORT CSV ───
+        function exportCSV() {
+            const leads = globalData.leads;
+            if (!leads.length) { alert('No leads to export.'); return; }
+            const headers = ['ID', 'Name', 'Email', 'Category', 'Package', 'ASIN', 'Goals', 'Date'];
+            const rows = leads.map(l => [l.id, l.name, l.email, l.category, l.package, l.asin, `"${(l.goals || '').replace(/"/g, "'")}"`, new Date(l.date).toLocaleString('en-GB')]);
+            const csv = [headers, ...rows].map(r => r.join(',')).join('\n');
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+            a.download = `ai-product-studio-leads-${new Date().toISOString().slice(0, 10)}.csv`;
+            a.click();
+        }
+
+        function showView(id, clickedNav) {
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.getElementById('view-' + id).classList.add('active');
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            if (clickedNav) clickedNav.classList.add('active');
+        }
+    </script>
+</body>
+
+</html>

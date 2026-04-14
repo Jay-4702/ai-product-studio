@@ -1,0 +1,3500 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Product Studio — Amazon Listing Images That Sell</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap"
+    rel="stylesheet">
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0
+    }
+
+    :root {
+      --white: #ffffff;
+      --off-white: #f5f5f7;
+      --black: #050505;
+      --near-black: #121214;
+      --dark: #1a1a1c;
+      --mid: #6e6e73;
+      --light: #a1a1a6;
+      --accent: #ff6b35;
+      --accent2: #ff8c5a;
+      --gold: #d4a853;
+      --green: #34c759;
+      --font-serif: 'Playfair Display', Georgia, serif;
+      --font-sans: 'Inter', -apple-system, sans-serif;
+      --ease: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    html {
+      scroll-behavior: smooth
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background: var(--black);
+      color: var(--white);
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+      cursor: none
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit
+    }
+
+    button {
+      cursor: none;
+      font-family: inherit
+    }
+
+    /* CUSTOM CURSOR */
+    .cursor {
+      position: fixed;
+      pointer-events: none;
+      z-index: 9999;
+      mix-blend-mode: difference
+    }
+
+    .cursor-dot {
+      width: 8px;
+      height: 8px;
+      background: #fff;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      transition: width .2s, height .2s
+    }
+
+    .cursor-ring {
+      width: 36px;
+      height: 36px;
+      border: 1.5px solid rgba(255, 255, 255, .6);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      transition: all .12s ease;
+      top: 0;
+      left: 0
+    }
+
+    body:hover .cursor-ring {
+      opacity: 1
+    }
+
+    a:hover~.cursor .cursor-ring,
+    button:hover~.cursor .cursor-ring {
+      width: 56px;
+      height: 56px;
+      border-color: var(--accent)
+    }
+
+    /* SCROLL PROGRESS */
+    #scrollProgress {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      z-index: 1000;
+      width: 0%;
+      transition: width .1s
+    }
+
+    /* NAV */
+    #nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 200;
+      height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 44px;
+      background: rgba(5, 5, 5, .82);
+      backdrop-filter: saturate(180%) blur(20px);
+      -webkit-backdrop-filter: saturate(180%) blur(20px);
+      border-bottom: .5px solid rgba(255, 255, 255, .08)
+    }
+
+    .nav-logo {
+      font-family: var(--font-serif);
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: -.02em;
+      color: var(--white);
+      display: flex;
+      align-items: center;
+      gap: 9px
+    }
+
+    .nav-mark {
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      background: var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 700;
+      font-family: var(--font-sans);
+      color: #fff
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 28px;
+      list-style: none;
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%)
+    }
+
+    .nav-link {
+      font-size: 12px;
+      font-weight: 400;
+      color: rgba(255, 255, 255, .82);
+      transition: color .2s
+    }
+
+    .nav-link:hover {
+      color: var(--white)
+    }
+
+    .nav-cta {
+      background: var(--white);
+      color: var(--black);
+      font-size: 12px;
+      font-weight: 500;
+      padding: 7px 16px;
+      border-radius: 980px;
+      border: none;
+      transition: all .25s var(--ease)
+    }
+
+    .nav-cta:hover {
+      background: var(--accent);
+      color: #fff;
+      transform: scale(1.03)
+    }
+
+    .page {
+      display: none
+    }
+
+    .page.active {
+      display: block
+    }
+
+    /* SECTION NAV DOTS */
+    #secNav {
+      position: fixed;
+      right: 24px;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 150;
+      display: flex;
+      flex-direction: column;
+      gap: 10px
+    }
+
+    .sec-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, .2);
+      border: .5px solid rgba(255, 255, 255, .3);
+      transition: all .3s;
+      cursor: pointer
+    }
+
+    .sec-dot.active {
+      background: var(--accent);
+      height: 20px;
+      border-radius: 3px;
+      border-color: var(--accent)
+    }
+
+    .sec-dot:hover {
+      background: rgba(255, 255, 255, .5)
+    }
+
+    /* HERO */
+    .hero {
+      position: relative;
+      height: 100vh;
+      min-height: 700px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      overflow: hidden
+    }
+
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      background-image: url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=2000&q=80&auto=format&fit=crop');
+      background-size: cover;
+      background-position: center;
+      transform: scale(1.06);
+      animation: hzoom 14s ease-out forwards
+    }
+
+    .hero-bg::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      opacity: .35;
+      pointer-events: none
+    }
+
+    @keyframes hzoom {
+      to {
+        transform: scale(1)
+      }
+    }
+
+    .hero-ov {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(5, 5, 5, .4) 0%, rgba(5, 5, 5, .2) 40%, rgba(5, 5, 5, .8) 80%, rgba(5, 5, 5, 1) 100%)
+    }
+
+    .hero-body {
+      position: relative;
+      z-index: 2;
+      padding: 0 24px;
+      animation: fup 1.2s .3s var(--ease) both
+    }
+
+    @keyframes fup {
+      from {
+        opacity: 0;
+        transform: translateY(40px)
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0)
+      }
+    }
+
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--accent2);
+      margin-bottom: 24px;
+      opacity: 0;
+      animation: fin .8s .9s ease both
+    }
+
+    .hero-eyebrow::before,
+    .hero-eyebrow::after {
+      content: '';
+      width: 28px;
+      height: 1px;
+      background: currentColor
+    }
+
+    @keyframes fin {
+      from {
+        opacity: 0
+      }
+
+      to {
+        opacity: 1
+      }
+    }
+
+    .hero-h1 {
+      font-family: var(--font-serif);
+      font-size: clamp(54px, 8.5vw, 120px);
+      font-weight: 700;
+      line-height: 1.02;
+      letter-spacing: -.03em;
+      color: var(--white);
+      margin-bottom: 22px;
+      text-shadow: 0 2px 40px rgba(0, 0, 0, .4)
+    }
+
+    .hero-h1 em {
+      color: var(--accent);
+      font-style: italic
+    }
+
+    .hero-sub {
+      font-size: clamp(17px, 2vw, 21px);
+      font-weight: 300;
+      line-height: 1.55;
+      color: rgba(255, 255, 255, .82);
+      max-width: 580px;
+      margin: 0 auto 40px;
+      letter-spacing: -.01em
+    }
+
+    .hero-btns {
+      display: flex;
+      gap: 14px;
+      justify-content: center;
+      flex-wrap: wrap
+    }
+
+    .btn-p {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 15px 32px;
+      border-radius: 980px;
+      font-size: 15px;
+      font-weight: 500;
+      letter-spacing: -.01em;
+      transition: all .3s var(--ease);
+      box-shadow: 0 4px 32px rgba(255, 107, 53, .3)
+    }
+
+    .btn-p:hover {
+      background: var(--accent2);
+      transform: scale(1.04);
+      box-shadow: 0 8px 48px rgba(255, 107, 53, .5)
+    }
+
+    .btn-s {
+      background: rgba(255, 255, 255, .08);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, .15);
+      padding: 15px 32px;
+      border-radius: 980px;
+      font-size: 15px;
+      font-weight: 400;
+      backdrop-filter: blur(10px);
+      transition: all .3s var(--ease)
+    }
+
+    .btn-s:hover {
+      background: rgba(255, 255, 255, .15)
+    }
+
+    .hero-scroll {
+      position: absolute;
+      bottom: 38px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      font-size: 10px;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, .45);
+      animation: bob 2.5s ease-in-out infinite;
+      z-index: 2
+    }
+
+    .hero-scroll::after {
+      content: '';
+      width: 1px;
+      height: 30px;
+      background: rgba(255, 255, 255, .25)
+    }
+
+    @keyframes bob {
+
+      0%,
+      100% {
+        transform: translateX(-50%) translateY(0)
+      }
+
+      50% {
+        transform: translateX(-50%) translateY(7px)
+      }
+    }
+
+    /* STATS BAR */
+    .stats-bar {
+      background: var(--near-black);
+      border-top: .5px solid rgba(255, 255, 255, .07);
+      border-bottom: .5px solid rgba(255, 255, 255, .07);
+      padding: 56px 24px;
+      overflow: hidden
+    }
+
+    .stats-inner {
+      max-width: 1100px;
+      margin: 0 auto
+    }
+
+    .stats-label {
+      text-align: center;
+      font-size: 11px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--mid);
+      margin-bottom: 48px
+    }
+
+    .stats-row {
+      display: flex;
+      gap: 0;
+      flex-wrap: wrap;
+      justify-content: center;
+      position: relative
+    }
+
+    .stats-row::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 5%;
+      right: 5%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255, 107, 53, .2) 20%, rgba(255, 107, 53, .5) 50%, rgba(255, 107, 53, .2) 80%, transparent);
+      transform: translateY(-50%);
+      z-index: 0
+    }
+
+    .stat-item {
+      flex: 1;
+      min-width: 160px;
+      max-width: 220px;
+      text-align: center;
+      position: relative;
+      z-index: 1;
+      padding: 0 24px
+    }
+
+    .stat-item::after {
+      content: '';
+      position: absolute;
+      bottom: -8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 2px;
+      background: var(--accent);
+      border-radius: 2px;
+      transition: width .6s var(--ease)
+    }
+
+    .stat-item.counted::after {
+      width: 60%
+    }
+
+    .stat-n {
+      font-family: var(--font-serif);
+      font-size: 56px;
+      font-weight: 700;
+      letter-spacing: -.04em;
+      color: var(--white);
+      line-height: 1;
+      position: relative
+    }
+
+    .stat-n em {
+      color: var(--accent);
+      font-style: normal
+    }
+
+    .stat-n .stat-prefix {
+      font-size: 28px;
+      vertical-align: super;
+      color: var(--accent)
+    }
+
+    .stat-l {
+      font-size: 11px;
+      letter-spacing: .13em;
+      text-transform: uppercase;
+      color: var(--mid);
+      margin-top: 10px
+    }
+
+    .stat-prog {
+      height: 2px;
+      background: rgba(255, 255, 255, .06);
+      border-radius: 2px;
+      margin-top: 14px;
+      overflow: hidden
+    }
+
+    .stat-prog-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      border-radius: 2px;
+      width: 0%;
+      transition: width 1.4s var(--ease)
+    }
+
+    .stat-div {
+      width: .5px;
+      background: rgba(255, 255, 255, .07);
+      height: 60px;
+      align-self: center;
+      margin: 0 8px
+    }
+
+    /* TRUST */
+    .trust-bar {
+      background: var(--near-black);
+      border-bottom: .5px solid rgba(255, 255, 255, .06);
+      padding: 32px 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 18px
+    }
+
+    .trust-lbl {
+      font-size: 11px;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--mid)
+    }
+
+    .trust-logos {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      justify-content: center
+    }
+
+    .trust-pill {
+      background: rgba(255, 255, 255, .04);
+      border: .5px solid rgba(255, 255, 255, .09);
+      color: var(--mid);
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      padding: 8px 18px;
+      border-radius: 980px;
+      transition: all .3s
+    }
+
+    .trust-pill:hover {
+      background: rgba(255, 107, 53, .08);
+      border-color: rgba(255, 107, 53, .25);
+      color: rgba(255, 255, 255, .7)
+    }
+
+    /* 3D SCROLL SYSTEM */
+    .s3d {
+      opacity: 0;
+      transform: perspective(1200px) translateY(60px) rotateX(5deg);
+      transition: opacity .9s var(--ease), transform .9s var(--ease);
+      will-change: transform, opacity
+    }
+
+    .s3d.in {
+      opacity: 1;
+      transform: perspective(1200px) translateY(0) rotateX(0)
+    }
+
+    .s3d-l {
+      opacity: 0;
+      transform: perspective(1200px) translateX(-60px) rotateY(4deg);
+      transition: opacity .9s var(--ease), transform .9s var(--ease)
+    }
+
+    .s3d-l.in {
+      opacity: 1;
+      transform: perspective(1200px) translateX(0) rotateY(0)
+    }
+
+    .s3d-r {
+      opacity: 0;
+      transform: perspective(1200px) translateX(60px) rotateY(-4deg);
+      transition: opacity .9s var(--ease), transform .9s var(--ease)
+    }
+
+    .s3d-r.in {
+      opacity: 1;
+      transform: perspective(1200px) translateX(0) rotateY(0)
+    }
+
+    /* CINEMATIC */
+    .cin {
+      position: relative;
+      min-height: 88vh;
+      display: flex;
+      align-items: center;
+      overflow: hidden
+    }
+
+    .cin-bg {
+      position: absolute;
+      inset: 0;
+      background-size: cover;
+      background-position: center;
+      will-change: transform
+    }
+
+    .cin-ov-l {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, rgba(5, 5, 5, .95) 0%, rgba(5, 5, 5, .6) 50%, transparent 100%)
+    }
+
+    .cin-ov-r {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(270deg, rgba(5, 5, 5, .95) 0%, rgba(5, 5, 5, .6) 50%, transparent 100%)
+    }
+
+    .cin-body {
+      position: relative;
+      z-index: 2;
+      padding: 80px 88px;
+      max-width: 640px
+    }
+
+    .cin-body.right {
+      margin-left: auto;
+      text-align: right
+    }
+
+    .cin-eye {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      color: var(--accent2);
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px
+    }
+
+    .cin-body.right .cin-eye {
+      justify-content: flex-end
+    }
+
+    .cin-eye::before {
+      content: '';
+      width: 24px;
+      height: 1px;
+      background: currentColor
+    }
+
+    .cin-body.right .cin-eye::before {
+      order: 1
+    }
+
+    .cin-h2 {
+      font-family: var(--font-serif);
+      font-size: clamp(38px, 5vw, 76px);
+      font-weight: 700;
+      line-height: 1.05;
+      letter-spacing: -.03em;
+      color: var(--white);
+      margin-bottom: 20px;
+      text-shadow: 0 2px 24px rgba(0, 0, 0, .3)
+    }
+
+    .cin-h2 em {
+      color: var(--accent);
+      font-style: italic
+    }
+
+    .cin-p {
+      font-size: 18px;
+      font-weight: 300;
+      line-height: 1.65;
+      color: rgba(255, 255, 255, .78);
+      margin-bottom: 36px;
+      letter-spacing: -.01em
+    }
+
+    .btn-cin {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--white);
+      border: none;
+      background: none;
+      padding: 0;
+      letter-spacing: .02em;
+      transition: gap .25s var(--ease), color .2s
+    }
+
+    .btn-cin:hover {
+      gap: 14px;
+      color: var(--accent2)
+    }
+
+    .btn-cin::after {
+      content: '→';
+      font-size: 16px
+    }
+
+    /* PROBLEM SECTION */
+    .prob-sec {
+      background: var(--near-black);
+      padding: 120px 44px
+    }
+
+    .sec-hd {
+      text-align: center;
+      margin-bottom: 72px
+    }
+
+    .sec-eye {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px
+    }
+
+    .sec-eye::before,
+    .sec-eye::after {
+      content: '';
+      width: 24px;
+      height: 1px;
+      background: var(--accent)
+    }
+
+    .sec-h2 {
+      font-family: var(--font-serif);
+      font-size: clamp(36px, 4.2vw, 62px);
+      font-weight: 700;
+      letter-spacing: -.03em;
+      line-height: 1.1;
+      color: var(--white);
+      margin-bottom: 16px
+    }
+
+    .sec-sub {
+      font-size: 18px;
+      font-weight: 300;
+      color: var(--mid);
+      max-width: 540px;
+      margin: 0 auto;
+      line-height: 1.6
+    }
+
+    .prob-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1px;
+      background: rgba(255, 255, 255, .05);
+      max-width: 1200px;
+      margin: 0 auto;
+      border-radius: 20px;
+      overflow: hidden;
+      border: .5px solid rgba(255, 255, 255, .07)
+    }
+
+    .prob-card {
+      background: var(--near-black);
+      padding: 48px 36px;
+      transition: background .4s;
+      position: relative;
+      overflow: hidden
+    }
+
+    .prob-card::before {
+      content: '';
+      position: absolute;
+      bottom: -40px;
+      right: -40px;
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255, 107, 53, .06), transparent 70%);
+      transition: all .5s
+    }
+
+    .prob-card:hover {
+      background: #18181a
+    }
+
+    .prob-card:hover::before {
+      width: 200px;
+      height: 200px;
+      bottom: -60px;
+      right: -60px
+    }
+
+    .p-ico {
+      width: 52px;
+      height: 52px;
+      border-radius: 14px;
+      background: rgba(255, 107, 53, .08);
+      border: 1px solid rgba(255, 107, 53, .15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 24px;
+      transition: all .4s
+    }
+
+    .prob-card:hover .p-ico {
+      background: rgba(255, 107, 53, .15);
+      border-color: rgba(255, 107, 53, .3);
+      transform: scale(1.05)
+    }
+
+    .p-ico svg {
+      width: 24px;
+      height: 24px;
+      stroke: var(--accent);
+      fill: none;
+      stroke-width: 1.5;
+      stroke-linecap: round;
+      stroke-linejoin: round
+    }
+
+    .p-h3 {
+      font-family: var(--font-serif);
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--white);
+      margin-bottom: 12px;
+      letter-spacing: -.02em
+    }
+
+    .p-body {
+      font-size: 14px;
+      font-weight: 300;
+      color: var(--mid);
+      line-height: 1.75
+    }
+
+    /* SERVICES */
+    .srv-sec {
+      background: var(--black);
+      padding: 120px 44px
+    }
+
+    .srv-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      max-width: 1200px;
+      margin: 72px auto 0
+    }
+
+    .srv-card {
+      position: relative;
+      border-radius: 24px;
+      overflow: hidden;
+      min-height: 440px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      transition: transform .5s var(--ease), box-shadow .5s
+    }
+
+    .srv-card:hover {
+      transform: scale(1.015);
+      box-shadow: 0 32px 80px rgba(0, 0, 0, .5)
+    }
+
+    .srv-card.wide {
+      grid-column: span 2;
+      min-height: 520px
+    }
+
+    .sc-bg {
+      position: absolute;
+      inset: 0;
+      background-size: cover;
+      background-position: center;
+      transition: transform .6s var(--ease)
+    }
+
+    .srv-card:hover .sc-bg {
+      transform: scale(1.04)
+    }
+
+    .sc-ov {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(0deg, rgba(5, 5, 5, .95) 0%, rgba(5, 5, 5, .2) 60%, transparent 100%)
+    }
+
+    .sc-body {
+      position: relative;
+      z-index: 2;
+      padding: 40px 44px
+    }
+
+    .sc-num {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 10px
+    }
+
+    .sc-title {
+      font-family: var(--font-serif);
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -.02em;
+      color: var(--white);
+      margin-bottom: 10px
+    }
+
+    .sc-p {
+      font-size: 15px;
+      font-weight: 300;
+      color: rgba(255, 255, 255, .7);
+      line-height: 1.6;
+      margin-bottom: 20px;
+      max-width: 480px
+    }
+
+    .sc-tags {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap
+    }
+
+    .sc-tag {
+      font-size: 11px;
+      padding: 4px 12px;
+      border-radius: 980px;
+      background: rgba(255, 255, 255, .09);
+      border: .5px solid rgba(255, 255, 255, .18);
+      color: rgba(255, 255, 255, .68);
+      font-weight: 400;
+      letter-spacing: .02em
+    }
+
+    /* PROCESS (Upgraded Visuals & Journey) */
+    .proc-sec {
+      background: var(--near-black);
+      padding: 140px 44px;
+      position: relative;
+      overflow: hidden
+    }
+
+    .proc-sec::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 50% 0%, rgba(255, 107, 53, 0.08), transparent 60%);
+      pointer-events: none;
+    }
+
+    .proc-track {
+      max-width: 920px;
+      margin: 72px auto 0;
+      position: relative;
+      z-index: 1
+    }
+
+    .proc-step {
+      display: flex;
+      gap: 48px;
+      align-items: flex-start;
+      padding: 48px;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0) 100%);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 24px;
+      margin-bottom: 24px;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.4s, box-shadow 0.4s;
+    }
+
+    .proc-step:hover {
+      transform: translateY(-6px);
+      border-color: rgba(255, 107, 53, 0.3);
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.4);
+    }
+
+    .proc-step::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      background: linear-gradient(180deg, var(--accent), var(--accent2));
+      opacity: 0;
+      transition: opacity 0.4s;
+    }
+
+    .proc-step:hover::before {
+      opacity: 1;
+    }
+
+    .ps-n {
+      font-family: var(--font-serif);
+      font-size: 72px;
+      font-weight: 700;
+      color: rgba(255, 255, 255, .08);
+      letter-spacing: -.05em;
+      line-height: 1;
+      min-width: 80px;
+      transition: color .4s
+    }
+
+    .proc-step:hover .ps-n {
+      color: rgba(255, 107, 53, .4)
+    }
+
+    .ps-cnt {
+      flex: 1;
+      padding-top: 8px
+    }
+
+    .ps-title {
+      font-family: var(--font-serif);
+      font-size: 32px;
+      font-weight: 700;
+      letter-spacing: -.02em;
+      margin-bottom: 16px;
+      color: var(--white)
+    }
+
+    .ps-p {
+      font-size: 16px;
+      font-weight: 300;
+      color: var(--mid);
+      line-height: 1.7
+    }
+
+    .ps-link {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--accent);
+      letter-spacing: .02em;
+      margin-top: 20px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: gap .25s var(--ease)
+    }
+
+    .ps-link:hover {
+      gap: 12px
+    }
+
+    .ps-link::after {
+      content: '→'
+    }
+
+    /* Step tag */
+    .ps-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 107, 53, .08);
+      border: 1px solid rgba(255, 107, 53, .18);
+      color: var(--accent2);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      padding: 6px 14px;
+      border-radius: 980px;
+      margin-bottom: 20px
+    }
+
+    /* B/A */
+    .ba-sec {
+      background: var(--black);
+      padding: 120px 44px
+    }
+
+    .ba-wrap {
+      max-width: 1100px;
+      margin: 72px auto 0;
+      border-radius: 24px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, .1);
+      box-shadow: 0 48px 120px rgba(0, 0, 0, .6)
+    }
+
+    .ba-slider {
+      position: relative;
+      height: 560px;
+      cursor: col-resize;
+      user-select: none;
+      background: var(--dark)
+    }
+
+    .ba-side {
+      position: absolute;
+      inset: 0;
+      background-size: cover;
+      background-position: center
+    }
+
+    /* UPDATED: Local Image */
+    .ba-after {
+      background-image: url('coffee_after.png')
+    }
+
+    /* UPDATED: Local Image */
+    .ba-before {
+      background-image: url('coffee_before.png');
+      clip-path: inset(0 50% 0 0)
+    }
+
+    .ba-before-ov {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, .4);
+      filter: saturate(.2)
+    }
+
+    .ba-badge {
+      position: absolute;
+      bottom: 22px;
+      background: rgba(0, 0, 0, .85);
+      backdrop-filter: blur(16px);
+      border: .5px solid rgba(255, 255, 255, .2);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      padding: 8px 18px;
+      border-radius: 980px;
+      z-index: 5;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5)
+    }
+
+    .ba-badge.after {
+      right: 22px;
+      background: rgba(52, 199, 89, .15);
+      border-color: rgba(52, 199, 89, .4);
+      color: var(--green)
+    }
+
+    .ba-line {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 50%;
+      width: 2px;
+      background: rgba(255, 255, 255, .92);
+      transform: translateX(-50%);
+      z-index: 10;
+      box-shadow: 0 0 24px rgba(255, 255, 255, .3)
+    }
+
+    .ba-handle {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: var(--white);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 24px rgba(0, 0, 0, .5), 0 0 0 4px rgba(255, 255, 255, .2);
+      font-size: 13px;
+      color: var(--black);
+      font-weight: 600
+    }
+
+    .ba-results {
+      display: flex;
+      justify-content: space-around;
+      background: var(--near-black);
+      border-top: 1px solid rgba(255, 255, 255, .08);
+      padding: 36px 48px
+    }
+
+    .ba-rv {
+      font-family: var(--font-serif);
+      font-size: 40px;
+      font-weight: 700;
+      color: var(--green);
+      letter-spacing: -.04em
+    }
+
+    .ba-rl {
+      font-size: 12px;
+      color: var(--mid);
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      margin-top: 4px
+    }
+
+    /* PRICING */
+    .price-sec {
+      background: var(--black);
+      padding: 120px 44px;
+      border-top: .5px solid rgba(255, 255, 255, .06)
+    }
+
+    .price-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      max-width: 1100px;
+      margin: 72px auto 0;
+      align-items: start
+    }
+
+    .pc {
+      border-radius: 24px;
+      background: rgba(255, 255, 255, .03);
+      border: 1px solid rgba(255, 255, 255, .08);
+      padding: 44px 36px;
+      position: relative;
+      overflow: hidden;
+      transition: all .4s var(--ease)
+    }
+
+    .pc:hover {
+      background: rgba(255, 255, 255, .06);
+      transform: translateY(-8px);
+      border-color: rgba(255, 255, 255, .17);
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.4)
+    }
+
+    .pc.hero-plan {
+      background: linear-gradient(145deg, rgba(255, 107, 53, .12), rgba(255, 107, 53, .02));
+      border: 1px solid rgba(255, 107, 53, .4)
+    }
+
+    .pc.hero-plan:hover {
+      transform: translateY(-8px)
+    }
+
+    .pc-glow {
+      position: absolute;
+      top: -60px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 200px;
+      height: 120px;
+      background: radial-gradient(ellipse, rgba(255, 107, 53, .22), transparent 70%);
+      pointer-events: none
+    }
+
+    .pc-pop {
+      position: absolute;
+      top: -1px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--accent);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      padding: 6px 20px;
+      border-radius: 0 0 12px 12px;
+      white-space: nowrap
+    }
+
+    .pc-tier {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--mid);
+      margin-bottom: 12px
+    }
+
+    .pc-price {
+      font-family: var(--font-serif);
+      font-size: 60px;
+      font-weight: 700;
+      letter-spacing: -.05em;
+      color: var(--white);
+      line-height: 1;
+      display: flex;
+      align-items: flex-start;
+      gap: 4px;
+      margin-bottom: 6px
+    }
+
+    .pc-price sup {
+      font-size: 28px;
+      font-family: var(--font-sans);
+      margin-top: 12px;
+      color: var(--mid)
+    }
+
+    .pc-desc {
+      font-size: 14px;
+      color: var(--mid);
+      margin-bottom: 28px;
+      font-weight: 300;
+      line-height: 1.5
+    }
+
+    .pc-div {
+      height: .5px;
+      background: rgba(255, 255, 255, .07);
+      margin-bottom: 28px
+    }
+
+    .pc-feats {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      margin-bottom: 36px
+    }
+
+    .pc-feat {
+      display: flex;
+      gap: 12px;
+      font-size: 14px;
+      color: rgba(255, 255, 255, .75);
+      font-weight: 300
+    }
+
+    .pc-feat::before {
+      content: '✓';
+      color: var(--green);
+      font-weight: 700;
+      font-size: 12px;
+      flex-shrink: 0;
+      padding-top: 1px
+    }
+
+    .btn-pc {
+      display: block;
+      text-align: center;
+      padding: 14px 24px;
+      border-radius: 980px;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all .3s var(--ease);
+      border: none;
+      width: 100%
+    }
+
+    .btn-acc {
+      background: var(--accent);
+      color: #fff;
+      box-shadow: 0 4px 24px rgba(255, 107, 53, .4)
+    }
+
+    .btn-acc:hover {
+      background: var(--accent2);
+      transform: scale(1.02);
+      box-shadow: 0 8px 36px rgba(255, 107, 53, .5)
+    }
+
+    .btn-gh {
+      background: rgba(255, 255, 255, .07);
+      color: var(--white);
+      border: .5px solid rgba(255, 255, 255, .15)
+    }
+
+    .btn-gh:hover {
+      background: rgba(255, 255, 255, .12)
+    }
+
+    /* TESTIMONIALS */
+    .testi-sec {
+      background: var(--near-black);
+      padding: 120px 44px;
+      border-top: .5px solid rgba(255, 255, 255, .06)
+    }
+
+    .testi-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      max-width: 1200px;
+      margin: 72px auto 0
+    }
+
+    .tc {
+      background: rgba(255, 255, 255, .03);
+      border: 1px solid rgba(255, 255, 255, .08);
+      border-radius: 24px;
+      padding: 40px;
+      transition: all .4s var(--ease)
+    }
+
+    .tc:hover {
+      background: rgba(255, 255, 255, .06);
+      border-color: rgba(255, 255, 255, .15);
+      transform: translateY(-6px);
+      box-shadow: 0 24px 60px rgba(0, 0, 0, .4)
+    }
+
+    .tc-stars {
+      display: flex;
+      gap: 3px;
+      margin-bottom: 20px
+    }
+
+    .tc-star {
+      color: var(--gold);
+      font-size: 14px
+    }
+
+    .tc-q {
+      font-family: var(--font-serif);
+      font-size: 16px;
+      font-style: italic;
+      font-weight: 400;
+      line-height: 1.7;
+      color: rgba(255, 255, 255, .85);
+      margin-bottom: 28px
+    }
+
+    .tc-auth {
+      display: flex;
+      align-items: center;
+      gap: 14px
+    }
+
+    .tc-av {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 14px;
+      flex-shrink: 0
+    }
+
+    .tc-name {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--white)
+    }
+
+    .tc-role {
+      font-size: 12px;
+      color: var(--mid);
+      margin-top: 2px
+    }
+
+    .tc-lift {
+      font-size: 12px;
+      color: var(--green);
+      font-weight: 500;
+      margin-top: 3px
+    }
+
+    /* FINAL CTA */
+    .fcta {
+      position: relative;
+      min-height: 640px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      overflow: hidden
+    }
+
+    .fcta-bg {
+      position: absolute;
+      inset: 0;
+      background-image: url('https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=2000&q=80&auto=format&fit=crop');
+      background-size: cover;
+      background-position: center
+    }
+
+    .fcta-ov {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(5, 5, 5, .8) 0%, rgba(5, 5, 5, .95) 100%)
+    }
+
+    .fcta-body {
+      position: relative;
+      z-index: 2;
+      padding: 80px 24px;
+      max-width: 720px
+    }
+
+    .fcta-body h2 {
+      font-family: var(--font-serif);
+      font-size: clamp(40px, 5.5vw, 76px);
+      font-weight: 700;
+      letter-spacing: -.03em;
+      line-height: 1.06;
+      color: var(--white);
+      margin-bottom: 24px
+    }
+
+    .fcta-body p {
+      font-size: 18px;
+      font-weight: 300;
+      color: rgba(255, 255, 255, .72);
+      margin-bottom: 48px;
+      line-height: 1.65
+    }
+
+    /* FOOTER */
+    footer {
+      background: var(--near-black);
+      border-top: .5px solid rgba(255, 255, 255, .07);
+      padding: 72px 88px 36px
+    }
+
+    .ft-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 48px;
+      margin-bottom: 64px
+    }
+
+    .ft-brand-name {
+      font-family: var(--font-serif);
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--white);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px
+    }
+
+    .ft-brand-p {
+      font-size: 14px;
+      color: var(--mid);
+      line-height: 1.75;
+      font-weight: 300;
+      max-width: 280px
+    }
+
+    .ft-col h4 {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--mid);
+      margin-bottom: 20px
+    }
+
+    .ft-col ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 12px
+    }
+
+    .ft-col a {
+      font-size: 14px;
+      color: var(--mid);
+      font-weight: 300;
+      transition: color .2s
+    }
+
+    .ft-col a:hover {
+      color: var(--white)
+    }
+
+    .ft-btm {
+      border-top: .5px solid rgba(255, 255, 255, .06);
+      padding-top: 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px
+    }
+
+    .ft-copy {
+      font-size: 12px;
+      color: #555
+    }
+
+    /* STICKY */
+    .sticky {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 150;
+      background: rgba(18, 18, 20, .96);
+      backdrop-filter: saturate(180%) blur(24px);
+      border-top: .5px solid rgba(255, 255, 255, .1);
+      padding: 14px 44px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transform: translateY(100%);
+      transition: transform .5s var(--ease)
+    }
+
+    .sticky.on {
+      transform: translateY(0)
+    }
+
+    .sb-txt {
+      font-size: 14px;
+      color: rgba(255, 255, 255, .7)
+    }
+
+    .sb-txt strong {
+      color: var(--white)
+    }
+
+    .sb-acts {
+      display: flex;
+      align-items: center;
+      gap: 14px
+    }
+
+    .sb-x {
+      background: none;
+      border: none;
+      color: var(--mid);
+      font-size: 18px;
+      padding: 4px;
+      transition: color .2s
+    }
+
+    .sb-x:hover {
+      color: var(--white)
+    }
+
+    /* PORTFOLIO PAGE */
+    .ph-hero {
+      background-image: url('https://images.unsplash.com/photo-1572177812156-58036aae439c?w=2000&q=80&auto=format&fit=crop');
+      background-size: cover;
+      background-position: center;
+      position: relative;
+      min-height: 60vh;
+      display: flex;
+      align-items: flex-end;
+      padding: 80px 88px
+    }
+
+    .ph-hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(5, 5, 5, .3) 0%, rgba(5, 5, 5, .9) 100%)
+    }
+
+    .ph-body {
+      position: relative;
+      z-index: 2
+    }
+
+    .port-grid {
+      background: var(--black);
+      padding: 72px 88px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      max-width: 1440px;
+      margin: 0 auto
+    }
+
+    .port-card {
+      border-radius: 24px;
+      overflow: hidden;
+      background: var(--near-black);
+      border: 1px solid rgba(255, 255, 255, .08);
+      transition: all .4s var(--ease)
+    }
+
+    .port-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 32px 80px rgba(0, 0, 0, .5);
+      border-color: rgba(255, 255, 255, .15)
+    }
+
+    .port-img {
+      height: 280px;
+      background-size: cover;
+      background-position: center;
+      position: relative
+    }
+
+    .port-res {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: rgba(52, 199, 89, .15);
+      border: .5px solid rgba(52, 199, 89, .4);
+      color: var(--green);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      padding: 6px 14px;
+      border-radius: 980px;
+      backdrop-filter: blur(8px)
+    }
+
+    .port-body {
+      padding: 32px
+    }
+
+    .port-cat {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 12px
+    }
+
+    .port-title {
+      font-family: var(--font-serif);
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--white);
+      margin-bottom: 12px;
+      letter-spacing: -.02em
+    }
+
+    .port-desc {
+      font-size: 14px;
+      color: var(--mid);
+      line-height: 1.65;
+      margin-bottom: 24px;
+      font-weight: 300
+    }
+
+    .port-mets {
+      display: flex;
+      gap: 20px;
+      border-top: 1px solid rgba(255, 255, 255, .06);
+      padding-top: 20px
+    }
+
+    .pm-v {
+      font-family: var(--font-serif);
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--green);
+      letter-spacing: -.04em
+    }
+
+    .pm-l {
+      font-size: 10px;
+      color: var(--mid);
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      margin-top: 2px
+    }
+
+    /* PRICING PAGE HEADER */
+    .price-hdr {
+      background-image: url('https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=2000&q=80&auto=format&fit=crop');
+      background-size: cover;
+      background-position: center;
+      position: relative;
+      min-height: 55vh;
+      display: flex;
+      align-items: flex-end;
+      padding: 80px 88px
+    }
+
+    .price-hdr::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(5, 5, 5, .4) 0%, rgba(5, 5, 5, .95) 100%)
+    }
+
+    .phdr-body {
+      position: relative;
+      z-index: 2;
+      max-width: 700px
+    }
+
+    /* CONTACT PAGE */
+    .con-wrap {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      min-height: 100vh;
+      padding-top: 52px
+    }
+
+    .con-left {
+      position: relative;
+      overflow: hidden;
+      background-image: url('https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=1200&q=80&auto=format&fit=crop');
+      background-size: cover;
+      background-position: center;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 72px 64px
+    }
+
+    .con-left::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(5, 5, 5, .2) 0%, rgba(5, 5, 5, .95) 100%)
+    }
+
+    .cl-body {
+      position: relative;
+      z-index: 2
+    }
+
+    .cl-h1 {
+      font-family: var(--font-serif);
+      font-size: clamp(36px, 4vw, 58px);
+      font-weight: 700;
+      line-height: 1.08;
+      letter-spacing: -.03em;
+      color: var(--white);
+      margin-bottom: 20px
+    }
+
+    .cl-p {
+      font-size: 16px;
+      color: rgba(255, 255, 255, .68);
+      font-weight: 300;
+      line-height: 1.65;
+      margin-bottom: 40px
+    }
+
+    .cmethods {
+      display: flex;
+      flex-direction: column;
+      gap: 14px
+    }
+
+    .cmi {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background: rgba(255, 255, 255, .05);
+      border: 1px solid rgba(255, 255, 255, .1);
+      border-radius: 16px;
+      padding: 16px 20px;
+      text-decoration: none;
+      color: var(--white);
+      backdrop-filter: blur(12px);
+      transition: all .3s
+    }
+
+    .cmi:hover {
+      background: rgba(255, 255, 255, .1);
+      border-color: rgba(255, 255, 255, .25)
+    }
+
+    .cmi-ico {
+      font-size: 22px
+    }
+
+    .cmi-lbl {
+      font-size: 10px;
+      color: rgba(255, 255, 255, .5);
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      font-weight: 500
+    }
+
+    .cmi-val {
+      font-size: 15px;
+      font-weight: 500;
+      margin-top: 2px
+    }
+
+    .con-right {
+      background: var(--near-black);
+      padding: 80px 64px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center
+    }
+
+    .cr-title {
+      font-family: var(--font-serif);
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -.02em;
+      margin-bottom: 6px
+    }
+
+    .cr-sub {
+      font-size: 14px;
+      color: var(--mid);
+      margin-bottom: 36px;
+      font-weight: 300
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px
+    }
+
+    .fg {
+      margin-bottom: 18px
+    }
+
+    .fg label {
+      display: block;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--mid);
+      margin-bottom: 8px
+    }
+
+    .fg label .req {
+      color: var(--accent);
+      margin-left: 2px
+    }
+
+    .fg input,
+    .fg select,
+    .fg textarea {
+      width: 100%;
+      background: rgba(255, 255, 255, .03);
+      border: 1px solid rgba(255, 255, 255, .1);
+      border-radius: 12px;
+      padding: 14px 18px;
+      color: var(--white);
+      font-family: var(--font-sans);
+      font-size: 14px;
+      outline: none;
+      transition: all .25s
+    }
+
+    .fg input:focus,
+    .fg select:focus,
+    .fg textarea:focus {
+      border-color: var(--accent);
+      background: rgba(255, 107, 53, .03);
+      box-shadow: 0 0 0 4px rgba(255, 107, 53, .1)
+    }
+
+    .fg input.error,
+    .fg select.error,
+    .fg textarea.error {
+      border-color: #ff4444;
+      background: rgba(255, 68, 68, .05);
+      box-shadow: 0 0 0 3px rgba(255, 68, 68, .1)
+    }
+
+    .fg input::placeholder,
+    .fg textarea::placeholder {
+      color: rgba(255, 255, 255, .25)
+    }
+
+    .fg select option {
+      background: #1d1d1f
+    }
+
+    .fg textarea {
+      resize: vertical;
+      min-height: 100px
+    }
+
+    .field-error {
+      font-size: 11px;
+      color: #ff6666;
+      margin-top: 5px;
+      display: none
+    }
+
+    .fg.has-error .field-error {
+      display: block
+    }
+
+    .btn-sub {
+      width: 100%;
+      padding: 18px;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 980px;
+      font-family: var(--font-sans);
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all .3s var(--ease);
+      box-shadow: 0 4px 24px rgba(255, 107, 53, .4)
+    }
+
+    .btn-sub:hover:not(:disabled) {
+      background: var(--accent2);
+      transform: scale(1.02);
+      box-shadow: 0 8px 40px rgba(255, 107, 53, .5)
+    }
+
+    .btn-sub:disabled {
+      opacity: .7;
+      transform: none
+    }
+
+    .form-note {
+      font-size: 12px;
+      color: #555;
+      text-align: center;
+      margin-top: 16px
+    }
+
+    /* FAQ */
+    .faq-wrap {
+      max-width: 720px;
+      margin: 80px auto 0;
+      padding: 0 44px
+    }
+
+    .faq-item {
+      border-bottom: 1px solid rgba(255, 255, 255, .08)
+    }
+
+    .faq-q {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 28px 0;
+      cursor: pointer;
+      gap: 24px
+    }
+
+    .faq-qt {
+      font-size: 16px;
+      font-weight: 400;
+      color: var(--white)
+    }
+
+    .faq-ico {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, .05);
+      border: 1px solid rgba(255, 255, 255, .1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      color: var(--mid);
+      flex-shrink: 0;
+      transition: all .3s
+    }
+
+    .faq-item.open .faq-ico {
+      background: var(--accent);
+      color: #fff;
+      transform: rotate(45deg);
+      border-color: var(--accent)
+    }
+
+    .faq-a {
+      font-size: 15px;
+      font-weight: 300;
+      color: var(--mid);
+      line-height: 1.75;
+      padding: 0 0 28px;
+      display: none
+    }
+
+    .faq-item.open .faq-a {
+      display: block
+    }
+
+    /* SUCCESS NOTIFICATION */
+    .toast {
+      position: fixed;
+      bottom: 100px;
+      right: 32px;
+      z-index: 500;
+      background: rgba(52, 199, 89, .15);
+      border: 1px solid rgba(52, 199, 89, .4);
+      color: #fff;
+      padding: 16px 24px;
+      border-radius: 14px;
+      backdrop-filter: blur(16px);
+      font-size: 14px;
+      font-weight: 400;
+      max-width: 340px;
+      transform: translateY(20px);
+      opacity: 0;
+      transition: all .4s var(--ease);
+      pointer-events: none
+    }
+
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1
+    }
+
+    .toast-icon {
+      display: inline-block;
+      margin-right: 8px;
+      font-size: 16px
+    }
+
+    /* RESPONSIVE */
+    @media(max-width:1024px) {
+      .prob-grid {
+        grid-template-columns: 1fr 1fr
+      }
+
+      .srv-grid {
+        grid-template-columns: 1fr
+      }
+
+      .srv-card.wide {
+        grid-column: span 1
+      }
+
+      .price-grid,
+      .testi-grid,
+      .port-grid {
+        grid-template-columns: 1fr
+      }
+
+      .ft-grid {
+        grid-template-columns: 1fr 1fr
+      }
+
+      .con-wrap {
+        grid-template-columns: 1fr
+      }
+
+      .con-left {
+        min-height: 50vh
+      }
+
+      .form-row {
+        grid-template-columns: 1fr
+      }
+
+      #secNav {
+        display: none
+      }
+    }
+
+    @media(max-width:768px) {
+      #nav {
+        padding: 0 24px
+      }
+
+      .nav-links {
+        display: none
+      }
+
+      .cin-body {
+        padding: 60px 28px
+      }
+
+      .prob-grid,
+      .testi-grid,
+      .price-grid {
+        grid-template-columns: 1fr
+      }
+
+      .proc-step {
+        flex-direction: column;
+        gap: 24px;
+        padding: 32px;
+      }
+
+      .ps-n {
+        font-size: 48px
+      }
+
+      footer,
+      .port-grid,
+      .ph-hero,
+      .price-hdr,
+      .ba-sec {
+        padding-left: 24px;
+        padding-right: 24px
+      }
+
+      .srv-sec,
+      .proc-sec,
+      .price-sec,
+      .testi-sec,
+      .ba-sec,
+      .prob-sec {
+        padding: 72px 24px
+      }
+
+      .ft-grid {
+        grid-template-columns: 1fr
+      }
+
+      body {
+        cursor: auto
+      }
+
+      .cursor {
+        display: none
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="cursor" id="cursorDot" style="position:fixed;top:0;left:0;z-index:9999;pointer-events:none">
+    <div class="cursor-dot"
+      style="position:absolute;width:8px;height:8px;background:#fff;border-radius:50%;transform:translate(-50%,-50%)">
+    </div>
+  </div>
+  <div class="cursor" id="cursorRing" style="position:fixed;top:0;left:0;z-index:9998;pointer-events:none">
+    <div class="cursor-ring"
+      style="position:absolute;width:36px;height:36px;border:1.5px solid rgba(255,255,255,.5);border-radius:50%;transform:translate(-50%,-50%);transition:width .2s,height .2s,border-color .2s">
+    </div>
+  </div>
+
+  <div id="scrollProgress"></div>
+
+  <div class="toast" id="toast"><span class="toast-icon">✓</span><span id="toastMsg">Done!</span></div>
+
+  <nav id="nav">
+    <a href="#" class="nav-logo" onclick="pg('home');return false">
+      <div class="nav-mark">AI</div>AI Product Studio
+    </a>
+    <ul class="nav-links">
+      <li><a class="nav-link" href="#" onclick="pg('home');return false">Home</a></li>
+      <li><a class="nav-link" href="#" onclick="pg('portfolio');return false">Portfolio</a></li>
+      <li><a class="nav-link" href="#" onclick="pg('pricing');return false">Pricing</a></li>
+      <li><a class="nav-link" href="#" onclick="pg('contact');return false">Contact</a></li>
+    </ul>
+    <button class="nav-cta" onclick="pg('contact')">Get Free Sample</button>
+  </nav>
+
+  <div id="secNav">
+    <div class="sec-dot active" onclick="scrollToSection(0)" title="Hero"></div>
+    <div class="sec-dot" onclick="scrollToSection(1)" title="Problem"></div>
+    <div class="sec-dot" onclick="scrollToSection(2)" title="Solution"></div>
+    <div class="sec-dot" onclick="scrollToSection(3)" title="Services"></div>
+    <div class="sec-dot" onclick="scrollToSection(4)" title="Process"></div>
+    <div class="sec-dot" onclick="scrollToSection(5)" title="Pricing"></div>
+    <div class="sec-dot" onclick="scrollToSection(6)" title="Testimonials"></div>
+  </div>
+
+  <div class="sticky" id="sb">
+    <span class="sb-txt"><strong>Ready to increase your Amazon sales?</strong> — Get one free sample image. No
+      commitment.</span>
+    <div class="sb-acts">
+      <button class="btn-p" style="padding:10px 20px;font-size:13px" onclick="pg('contact')">Get Free Sample →</button>
+      <button class="sb-x" onclick="document.getElementById('sb').classList.remove('on')">✕</button>
+    </div>
+  </div>
+
+  <div id="home" class="page active">
+
+    <div class="hero" id="sec0">
+      <div class="hero-bg"></div>
+      <div class="hero-ov"></div>
+      <div class="hero-body">
+        <div class="hero-eyebrow">AI-Powered · Conversion-First · Amazon-Focused</div>
+        <h1 class="hero-h1">We don't make images.<br>We make <em>sales.</em></h1>
+        <p class="hero-sub">AI-powered product visuals built on conversion psychology. Turn Amazon browsers into buyers
+          with scroll-stopping listings that actually perform.</p>
+        <div class="hero-btns">
+          <button class="btn-p" onclick="pg('contact')">Get Your Free Sample →</button>
+          <button class="btn-s" onclick="pg('portfolio')">View Our Work</button>
+        </div>
+      </div>
+      <div class="hero-scroll">scroll</div>
+    </div>
+
+    <div class="stats-bar" id="statsSection">
+      <div class="stats-inner">
+        <div class="stats-label">Performance benchmarks across 200+ brands</div>
+        <div class="stats-row">
+          <div class="stat-item" id="si0">
+            <div class="stat-n"><em>+</em><span id="c1">0</span>%</div>
+            <div class="stat-l">Average CTR Lift</div>
+            <div class="stat-prog">
+              <div class="stat-prog-fill" id="sp0"></div>
+            </div>
+          </div>
+          <div class="stat-div"></div>
+          <div class="stat-item" id="si1">
+            <div class="stat-n"><em>+</em><span id="c2">0</span>%</div>
+            <div class="stat-l">Conversion Increase</div>
+            <div class="stat-prog">
+              <div class="stat-prog-fill" id="sp1"></div>
+            </div>
+          </div>
+          <div class="stat-div"></div>
+          <div class="stat-item" id="si2">
+            <div class="stat-n"><span id="c3">0</span><em>+</em></div>
+            <div class="stat-l">Brands Served</div>
+            <div class="stat-prog">
+              <div class="stat-prog-fill" id="sp2"></div>
+            </div>
+          </div>
+          <div class="stat-div"></div>
+          <div class="stat-item" id="si3">
+            <div class="stat-n"><span id="c4">0</span><em>h</em></div>
+            <div class="stat-l">Turnaround Time</div>
+            <div class="stat-prog">
+              <div class="stat-prog-fill" id="sp3"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="trust-bar">
+      <div class="trust-lbl">Trusted by sellers across</div>
+      <div class="trust-logos">
+        <div class="trust-pill">Amazon US</div>
+        <div class="trust-pill">Amazon EU</div>
+        <div class="trust-pill">Shopify</div>
+        <div class="trust-pill">Walmart</div>
+        <div class="trust-pill">Etsy</div>
+        <div class="trust-pill">eBay</div>
+      </div>
+    </div>
+
+    <section class="cin" id="sec1" style="min-height:80vh">
+      <div class="cin-bg"
+        style="background-image:url('https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=2000&q=80&auto=format&fit=crop')">
+      </div>
+      <div class="cin-ov-l"></div>
+      <div class="cin-body s3d-l">
+        <div class="cin-eye">The Problem</div>
+        <h2 class="cin-h2">Your product is great.<br>Your listing <em>isn't.</em></h2>
+        <p class="cin-p">Most Amazon sellers are invisible. Low-quality images get skipped in milliseconds, ad budgets
+          bleed without converting, and competitors with better visuals win every click — every single day.</p>
+        <button class="btn-cin" onclick="document.querySelector('.prob-sec').scrollIntoView({behavior:'smooth'})">See
+          the real cost</button>
+      </div>
+    </section>
+
+    <div class="prob-sec" id="sec2">
+      <div class="sec-hd s3d">
+        <div class="sec-eye">Why listings fail</div>
+        <h2 class="sec-h2">Four reasons you're losing<br>sales every single day</h2>
+        <p class="sec-sub">Your competitor is showing up more, getting more clicks, converting more buyers. Here's why.
+        </p>
+      </div>
+      <div class="prob-grid s3d" style="transition-delay:.15s">
+        <div class="prob-card">
+          <div class="p-ico">
+            <svg viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="10" />
+              <path d="M8 12s1.5-4 4-4 4 4 4 4-1.5 4-4 4-4-4-4-4z" />
+              <circle cx="12" cy="12" r="1" fill="var(--accent)" stroke="none" />
+            </svg>
+          </div>
+          <h3 class="p-h3">Invisible in Search</h3>
+          <p class="p-body">Low-quality main images get skipped in milliseconds. Shoppers never click your listing —
+            your competitor's image wins before you even have a chance to speak.</p>
+        </div>
+        <div class="prob-card">
+          <div class="p-ico">
+            <svg viewBox="0 0 24 24">
+              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+            </svg>
+          </div>
+          <h3 class="p-h3">Poor Conversion Rate</h3>
+          <p class="p-body">Without lifestyle context, feature clarity, and trust signals, visitors leave without
+            buying. Generic product photos don't sell — strategic visuals do.</p>
+        </div>
+        <div class="prob-card">
+          <div class="p-ico">
+            <svg viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="10" />
+              <path d="M12 6v6l4 2" />
+              <path d="M16 8H8" />
+            </svg>
+          </div>
+          <h3 class="p-h3">Wasted Ad Spend</h3>
+          <p class="p-body">You're paying for clicks that don't convert. Every euro on PPC with weak images is money
+            into a leaky bucket that compounds every month you wait.</p>
+        </div>
+        <div class="prob-card">
+          <div class="p-ico">
+            <svg viewBox="0 0 24 24">
+              <path d="M6 9l6-6 6 6" />
+              <path d="M6 12l6-6 6 6" />
+              <path d="M6 15l6-6 6 6" />
+            </svg>
+          </div>
+          <h3 class="p-h3">Losing to Competitors</h3>
+          <p class="p-body">Top competitors are already investing in professional, conversion-optimised visuals. Every
+            day you wait is ranking and market share lost forever.</p>
+        </div>
+      </div>
+    </div>
+
+    <section class="cin" style="min-height:85vh">
+      <div class="cin-bg"
+        style="background-image:url('https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=2000&q=80&auto=format&fit=crop')">
+      </div>
+      <div class="cin-ov-r"></div>
+      <div class="cin-body right s3d-r">
+        <div class="cin-eye">The Solution</div>
+        <h2 class="cin-h2">Visuals built<br>to <em>convert.</em></h2>
+        <p class="cin-p">We combine AI generation speed with conversion psychology and Amazon expertise. Every image is
+          designed with one goal: to make your product impossible to scroll past — and your listing impossible to leave
+          without buying.</p>
+        <button class="btn-cin" onclick="document.querySelector('.srv-sec').scrollIntoView({behavior:'smooth'})">Explore
+          our services</button>
+      </div>
+    </section>
+
+    <div class="srv-sec" id="sec3">
+      <div class="sec-hd s3d">
+        <div class="sec-eye">Services</div>
+        <h2 class="sec-h2">Everything your listing<br>needs to win</h2>
+        <p class="sec-sub">Three precision services. One outcome: your product becomes the obvious choice.</p>
+      </div>
+      <div class="srv-grid">
+        <div class="srv-card wide s3d">
+          <div class="sc-bg"
+            style="background-image:url('https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=1800&q=80&auto=format&fit=crop')">
+          </div>
+          <div class="sc-ov"></div>
+          <div class="sc-body">
+            <div class="sc-num">Service 01</div>
+            <div class="sc-title">Amazon Listing Images</div>
+            <p class="sc-p">A complete 7-image stack built on competitor research and conversion psychology. From
+              scroll-stopping main images to infographics and comparison charts — every image engineered to earn the
+              click and close the sale.</p>
+            <div class="sc-tags">
+              <span class="sc-tag">Main Images</span><span class="sc-tag">Infographics</span>
+              <span class="sc-tag">Comparison Charts</span><span class="sc-tag">Feature Highlights</span><span
+                class="sc-tag">A/B Variants</span>
+            </div>
+          </div>
+        </div>
+        <div class="srv-card s3d" style="transition-delay:.1s">
+          <div class="sc-bg"
+            style="background-image:url('https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=1200&q=80&auto=format&fit=crop')">
+          </div>
+          <div class="sc-ov"></div>
+          <div class="sc-body">
+            <div class="sc-num">Service 02</div>
+            <div class="sc-title">AI Lifestyle Images</div>
+            <p class="sc-p">No photoshoot needed. Send your product photos and we transform them into premium lifestyle
+              scenes — aspirational rooms, real contexts, human moments — faster and cheaper than any studio.</p>
+            <div class="sc-tags">
+              <span class="sc-tag">Lifestyle Scenes</span><span class="sc-tag">Model Integration</span><span
+                class="sc-tag">Multiple Settings</span>
+            </div>
+          </div>
+        </div>
+        <div class="srv-card s3d" style="transition-delay:.2s">
+          <div class="sc-bg"
+            style="background-image:url('https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1200&q=80&auto=format&fit=crop')">
+          </div>
+          <div class="sc-ov"></div>
+          <div class="sc-body">
+            <div class="sc-num">Service 03</div>
+            <div class="sc-title">Conversion Strategy</div>
+            <p class="sc-p">We research your top 10 competitors, identify visual gaps in your category, and build a
+              strategic brief. Every design decision is backed by data — not taste.</p>
+            <div class="sc-tags">
+              <span class="sc-tag">Competitor Research</span><span class="sc-tag">Psychology</span><span
+                class="sc-tag">Split Testing</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ba-sec">
+      <div class="sec-hd s3d">
+        <div class="sec-eye">Results</div>
+        <h2 class="sec-h2">See the difference<br>conversion design makes</h2>
+        <p class="sec-sub">Drag the slider. This is what happens when images are built with psychology, not guesswork.
+        </p>
+      </div>
+      <div class="ba-wrap s3d">
+        <div class="ba-slider" id="baSlider">
+          <div class="ba-side ba-after"></div>
+          <div class="ba-side ba-before" id="baBefore">
+            <div class="ba-before-ov"></div>
+          </div>
+          <div class="ba-badge" style="left:22px">Before — Amateur Baseline</div>
+          <div class="ba-badge after">After — High-Converting Lifestyle</div>
+          <div class="ba-line" id="baLine">
+            <div class="ba-handle">⟺</div>
+          </div>
+        </div>
+        <div class="ba-results">
+          <div>
+            <div class="ba-rv">+41%</div>
+            <div class="ba-rl">CTR Increase</div>
+          </div>
+          <div>
+            <div class="ba-rv">+29%</div>
+            <div class="ba-rl">Conversion Rate</div>
+          </div>
+          <div>
+            <div class="ba-rv">120h</div>
+            <div class="ba-rl">Delivery Time</div>
+          </div>
+          <div>
+            <div class="ba-rv">+€8K</div>
+            <div class="ba-rl">Monthly Revenue</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="proc-sec" id="sec4">
+      <div class="sec-hd s3d">
+        <div class="sec-eye">The Journey</div>
+        <h2 class="sec-h2">From raw photos to<br>category dominance</h2>
+        <p class="sec-sub" style="max-width:540px;margin:0 auto">A seamless, transformative experience designed to
+          eliminate friction and maximize output.</p>
+      </div>
+      <div class="proc-track">
+        <div class="proc-step s3d">
+          <div class="ps-n">01</div>
+          <div class="ps-cnt">
+            <div class="ps-tag">Before — The Foundation</div>
+            <div class="ps-title">Effortless Onboarding</div>
+            <p class="ps-p">No expensive photoshoots, no complicated agency briefs. Simply upload your existing product
+              photos (even smartphone shots work), your Amazon ASIN, and any quick notes. We take your raw baseline and
+              prepare it for a complete visual transformation.</p>
+            <span class="ps-link" onclick="pg('contact')">Start your transformation</span>
+          </div>
+        </div>
+        <div class="proc-step s3d" style="transition-delay:.15s">
+          <div class="ps-n">02</div>
+          <div class="ps-cnt">
+            <div class="ps-tag">Process — The Engine</div>
+            <div class="ps-title">Deep Strategic Transformation</div>
+            <p class="ps-p">We don't just 'make it pretty.' Our team dissects your top 10 competitors, maps the
+              psychological drivers of your niche, and uses advanced AI to build premium lifestyle scenes and
+              infographic hooks that your category is currently missing.</p>
+          </div>
+        </div>
+        <div class="proc-step s3d" style="transition-delay:.3s">
+          <div class="ps-n">03</div>
+          <div class="ps-cnt">
+            <div class="ps-tag">After — The Outcome</div>
+            <div class="ps-title">Visible Business Results</div>
+            <p class="ps-p">Receive a fully optimized, production-ready image stack in just 120 hours. Upload them to
+              your listing and watch your Click-Through Rate (CTR) and conversions surge. We measure our success
+              entirely by your bottom-line sales growth.</p>
+            <span class="ps-link" onclick="pg('pricing')">View our packages</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="price-sec" id="sec5">
+      <div class="sec-hd s3d">
+        <div class="sec-eye">Pricing</div>
+        <h2 class="sec-h2">Simple, transparent pricing.</h2>
+        <p class="sec-sub">One investment. A permanent improvement to every customer who ever sees your listing.</p>
+      </div>
+      <div class="price-grid">
+        <div class="pc s3d">
+          <div class="pc-tier">Starter</div>
+          <div class="pc-price"><sup>€</sup>297</div>
+          <div class="pc-desc">For sellers testing conversion-first design.</div>
+          <div class="pc-div"></div>
+          <ul class="pc-feats">
+            <li class="pc-feat">5 optimised listing images</li>
+            <li class="pc-feat">1 AI lifestyle scene</li>
+            <li class="pc-feat">Competitor analysis</li>
+            <li class="pc-feat">2 revision rounds</li>
+            <li class="pc-feat">120-hour delivery</li>
+          </ul>
+          <button class="btn-pc btn-gh" onclick="pg('contact')">Get Started</button>
+        </div>
+        <div class="pc hero-plan s3d" style="transition-delay:.1s">
+          <div class="pc-glow"></div>
+          <div class="pc-pop">Most Popular</div>
+          <div class="pc-tier">Growth</div>
+          <div class="pc-price"><sup>€</sup>647</div>
+          <div class="pc-desc">For serious sellers scaling fast who want to dominate their category.</div>
+          <div class="pc-div"></div>
+          <ul class="pc-feats">
+            <li class="pc-feat">Full 7-image listing stack</li>
+            <li class="pc-feat">3 AI lifestyle scenes</li>
+            <li class="pc-feat">Custom infographic</li>
+            <li class="pc-feat">A/B main image variants</li>
+            <li class="pc-feat">3 revision rounds</li>
+            <li class="pc-feat">120-hour delivery</li>
+          </ul>
+          <button class="btn-pc btn-acc" onclick="pg('contact')">Get Started</button>
+        </div>
+        <div class="pc s3d" style="transition-delay:.2s">
+          <div class="pc-tier">Pro</div>
+          <div class="pc-price"><sup>€</sup>997</div>
+          <div class="pc-desc">Full brand transformation for sellers building category-defining brands.</div>
+          <div class="pc-div"></div>
+          <ul class="pc-feats">
+            <li class="pc-feat">Everything in Growth</li>
+            <li class="pc-feat">Amazon A+ Content (5 modules)</li>
+            <li class="pc-feat">5 AI lifestyle scenes</li>
+            <li class="pc-feat">Social media ad creatives</li>
+            <li class="pc-feat">Unlimited revisions</li>
+            <li class="pc-feat">Priority 24h delivery</li>
+            <li class="pc-feat">1-on-1 strategy call</li>
+          </ul>
+          <button class="btn-pc btn-gh" onclick="pg('contact')">Get Started</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="testi-sec" id="sec6">
+      <div class="sec-hd s3d">
+        <div class="sec-eye">Social Proof</div>
+        <h2 class="sec-h2">Sellers who stopped guessing<br>and started growing</h2>
+      </div>
+      <div class="testi-grid s3d">
+        <div class="tc">
+          <div class="tc-stars"><span class="tc-star">★</span><span class="tc-star">★</span><span
+              class="tc-star">★</span><span class="tc-star">★</span><span class="tc-star">★</span></div>
+          <p class="tc-q">"Within 2 weeks of updating our images, CTR jumped 38%. I was sceptical about AI lifestyle
+            shots but they look more professional than our actual photoshoot."</p>
+          <div class="tc-auth">
+            <div class="tc-av" style="background:rgba(255,107,53,.3);color:var(--accent2)">MK</div>
+            <div>
+              <div class="tc-name">Marco K.</div>
+              <div class="tc-role">Private Label · Beauty</div>
+              <div class="tc-lift">↑ 38% CTR · ↑ 24% Conversion</div>
+            </div>
+          </div>
+        </div>
+        <div class="tc">
+          <div class="tc-stars"><span class="tc-star">★</span><span class="tc-star">★</span><span
+              class="tc-star">★</span><span class="tc-star">★</span><span class="tc-star">★</span></div>
+          <p class="tc-q">"The competitor research alone was worth the investment. They spotted messaging angles I'd
+            completely missed. Sales lifted 52% in my first month after the redesign."</p>
+          <div class="tc-auth">
+            <div class="tc-av" style="background:rgba(79,140,255,.3);color:#7ba8ff">SL</div>
+            <div>
+              <div class="tc-name">Sophie L.</div>
+              <div class="tc-role">Ecommerce Brand · Health</div>
+              <div class="tc-lift">↑ 52% sales in first month</div>
+            </div>
+          </div>
+        </div>
+        <div class="tc">
+          <div class="tc-stars"><span class="tc-star">★</span><span class="tc-star">★</span><span
+              class="tc-star">★</span><span class="tc-star">★</span><span class="tc-star">★</span></div>
+          <p class="tc-q">"Fast, genuinely professional, and they think like sellers — not just designers. The only
+            agency I recommend to my entire seller mastermind group."</p>
+          <div class="tc-auth">
+            <div class="tc-av" style="background:rgba(52,199,89,.3);color:var(--green)">RP</div>
+            <div>
+              <div class="tc-name">Riccardo P.</div>
+              <div class="tc-role">FBA Seller · Home & Kitchen</div>
+              <div class="tc-lift">↑ 61% organic ranking</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="fcta">
+      <div class="fcta-bg"></div>
+      <div class="fcta-ov"></div>
+      <div class="fcta-body s3d">
+        <h2>Ready to make your listing<br>impossible to ignore?</h2>
+        <p>Get a free sample image — no commitment, no credit card. See the quality and strategy before you spend a
+          single euro.</p>
+        <div class="hero-btns">
+          <button class="btn-p" style="font-size:16px;padding:18px 40px" onclick="pg('contact')">Get Free Sample Image
+            →</button>
+          <button class="btn-s" style="font-size:16px;padding:18px 40px" onclick="pg('contact')">Talk to the
+            Team</button>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      <div class="ft-grid">
+        <div>
+          <div class="ft-brand-name">
+            <div class="nav-mark">AI</div>AI Product Studio
+          </div>
+          <p class="ft-brand-p">The AI-powered creative studio that turns product photos into Amazon sales machines —
+            built on conversion psychology, not design taste.</p>
+        </div>
+        <div class="ft-col">
+          <h4>Pages</h4>
+          <ul>
+            <li><a href="#" onclick="pg('home');return false">Home</a></li>
+            <li><a href="#" onclick="pg('portfolio');return false">Portfolio</a></li>
+            <li><a href="#" onclick="pg('pricing');return false">Pricing</a></li>
+            <li><a href="#" onclick="pg('contact');return false">Contact</a></li>
+          </ul>
+        </div>
+        <div class="ft-col">
+          <h4>Services</h4>
+          <ul>
+            <li><a href="#">Listing Images</a></li>
+            <li><a href="#">AI Lifestyle Photos</a></li>
+            <li><a href="#">Conversion Strategy</a></li>
+            <li><a href="#">A+ Content</a></li>
+          </ul>
+        </div>
+        <div class="ft-col">
+          <h4>Contact</h4>
+          <ul>
+            <li><a href="https://wa.me/393509817420" target="_blank">WhatsApp: +39 350 981 7420</a></li>
+            <li><a href="mailto:hello@aiproductstudio.com">hello@aiproductstudio.com</a></li>
+            <li><a href="#" onclick="pg('contact');return false">Free Sample Request</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="ft-btm">
+        <span class="ft-copy">© 2025 AI Product Studio. All rights reserved.</span>
+        <span class="ft-copy">Crafted with AI + Conversion Psychology</span>
+      </div>
+    </footer>
+  </div>
+
+  <div id="portfolio" class="page">
+    <div class="ph-hero">
+      <div class="ph-body">
+        <div class="cin-eye" style="margin-bottom:16px">Our Work</div>
+        <h1
+          style="font-family:var(--font-serif);font-size:clamp(44px,5.5vw,84px);font-weight:700;letter-spacing:-.03em;line-height:1.06;color:var(--white);margin-bottom:16px">
+          Results-driven visuals<br>that move product.</h1>
+        <p style="font-size:18px;font-weight:300;color:rgba(255,255,255,.72);max-width:500px">Every project measured by
+          one metric: did it increase sales?</p>
+      </div>
+    </div>
+    <div class="port-grid">
+      <div class="port-card">
+        <div class="port-img" style="background-image:url('serum_image.png')">
+          <div class="port-res">+41% CTR</div>
+        </div>
+        <div class="port-body">
+          <div class="port-cat">Beauty · Skincare</div>
+          <div class="port-title">Vitamin C Serum — Full Listing Overhaul</div>
+          <p class="port-desc">Competitor research revealed a messaging gap around results timelines. We built an
+            infographic showing day-by-day results — 41% more clicks within 2 weeks.</p>
+          <div class="port-mets">
+            <div>
+              <div class="pm-v">+41%</div>
+              <div class="pm-l">CTR</div>
+            </div>
+            <div>
+              <div class="pm-v">+29%</div>
+              <div class="pm-l">Conv. Rate</div>
+            </div>
+            <div>
+              <div class="pm-v">+€8K</div>
+              <div class="pm-l">Monthly Rev</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="port-card">
+        <div class="port-img" style="background-image:url('coffee_after.png')">
+          <div class="port-res">+52% Sales</div>
+        </div>
+        <div class="port-body">
+          <div class="port-cat">Home & Kitchen</div>
+          <div class="port-title">Smart Coffee Maker — Lifestyle Transformation</div>
+          <p class="port-desc">Replaced stock photos with AI lifestyle scenes showing the product in aspirational
+            morning routines. Conversion rate doubled in 3 weeks.</p>
+          <div class="port-mets">
+            <div>
+              <div class="pm-v">+52%</div>
+              <div class="pm-l">Sales</div>
+            </div>
+            <div>
+              <div class="pm-v">+33%</div>
+              <div class="pm-l">Conv. Rate</div>
+            </div>
+            <div>
+              <div class="pm-v">4.8★</div>
+              <div class="pm-l">Rating</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="port-card">
+        <div class="port-img" style="background-image:url('Sports_Protein.png')">
+          <div class="port-res">+63% Revenue</div>
+        </div>
+        <div class="port-body">
+          <div class="port-cat">Sports & Fitness</div>
+          <div class="port-title">Protein Powder — Comparison Strategy</div>
+          <p class="port-desc">Created a killer comparison chart vs the top 3 competitors. Organic ranking jumped from
+            page 3 to page 1 in 5 weeks.</p>
+          <div class="port-mets">
+            <div>
+              <div class="pm-v">+63%</div>
+              <div class="pm-l">Revenue</div>
+            </div>
+            <div>
+              <div class="pm-v">Page 1</div>
+              <div class="pm-l">Ranking</div>
+            </div>
+            <div>
+              <div class="pm-v">+88%</div>
+              <div class="pm-l">Impressions</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="port-card">
+        <div class="port-img"
+          style="background-image:url('https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=800&q=80&auto=format&fit=crop')">
+          <div class="port-res">+38% CTR</div>
+        </div>
+        <div class="port-body">
+          <div class="port-cat">Pet Supplies · Premium</div>
+          <div class="port-title">Organic Dog Treats — Emotional Storytelling</div>
+          <p class="port-desc">Built a visual narrative around "loving your pet" with cosy lifestyle scenes. Emotional
+            connection drove a 22% basket size increase.</p>
+          <div class="port-mets">
+            <div>
+              <div class="pm-v">+38%</div>
+              <div class="pm-l">CTR</div>
+            </div>
+            <div>
+              <div class="pm-v">+45%</div>
+              <div class="pm-l">Conv. Rate</div>
+            </div>
+            <div>
+              <div class="pm-v">+22%</div>
+              <div class="pm-l">Basket Size</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="port-card">
+        <div class="port-img" style="background-image:url('Baby_Monitor.png')">
+          <div class="port-res">+71% Conv.</div>
+        </div>
+        <div class="port-body">
+          <div class="port-cat">Baby & Kids · Safety</div>
+          <div class="port-title">Baby Monitor — Trust & Safety Focus</div>
+          <p class="port-desc">Parents buy on trust. We rebuilt the entire image stack around reassurance —
+            certifications, ease-of-use infographics, real-life usage. Returns dropped 18%.</p>
+          <div class="port-mets">
+            <div>
+              <div class="pm-v">+71%</div>
+              <div class="pm-l">Conversion</div>
+            </div>
+            <div>
+              <div class="pm-v">-18%</div>
+              <div class="pm-l">Returns</div>
+            </div>
+            <div>
+              <div class="pm-v">+€12K</div>
+              <div class="pm-l">Monthly Rev</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="port-card">
+        <div class="port-img" style="background-image:url('Wireless_Charging_Pad.jpg')">
+          <div class="port-res">+44% CTR</div>
+        </div>
+        <div class="port-body">
+          <div class="port-cat">Electronics · Accessories</div>
+          <div class="port-title">Wireless Charging Pad — Tech Lifestyle</div>
+          <p class="port-desc">Sleek desk-setup lifestyle scenes and a technical feature infographic justified the
+            premium price. Price-objection returns dropped 31%.</p>
+          <div class="port-mets">
+            <div>
+              <div class="pm-v">+44%</div>
+              <div class="pm-l">CTR</div>
+            </div>
+            <div>
+              <div class="pm-v">-31%</div>
+              <div class="pm-l">Returns</div>
+            </div>
+            <div>
+              <div class="pm-v">+55%</div>
+              <div class="pm-l">Sales</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="text-align:center;padding:60px 24px;background:var(--black)">
+      <p style="font-size:18px;color:var(--mid);margin-bottom:28px;font-weight:300">Want results like these for your
+        product?</p>
+      <button class="btn-p" style="font-size:15px;padding:16px 36px" onclick="pg('contact')">Request Your Free Sample
+        →</button>
+    </div>
+    <footer
+      style="background:var(--near-black);border-top:.5px solid rgba(255,255,255,.07);padding:36px 88px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px">
+      <span class="ft-copy">© 2025 AI Product Studio</span>
+      <div style="display:flex;gap:24px">
+        <a href="#" class="ft-copy" onclick="pg('home');return false">Home</a>
+        <a href="#" class="ft-copy" onclick="pg('pricing');return false">Pricing</a>
+        <a href="#" class="ft-copy" onclick="pg('contact');return false">Contact</a>
+      </div>
+    </footer>
+  </div>
+
+  <div id="pricing" class="page">
+    <div class="price-hdr">
+      <div class="phdr-body">
+        <div class="cin-eye" style="margin-bottom:16px">Pricing</div>
+        <h1
+          style="font-family:var(--font-serif);font-size:clamp(44px,5.5vw,84px);font-weight:700;letter-spacing:-.03em;line-height:1.06;color:var(--white);margin-bottom:16px">
+          Invest once.<br>Sell forever.</h1>
+        <p style="font-size:18px;font-weight:300;color:rgba(255,255,255,.7);max-width:480px">One investment permanently
+          improves every customer who ever sees your listing.</p>
+      </div>
+    </div>
+    <div class="price-sec" style="padding-top:80px">
+      <div style="text-align:center;margin-bottom:16px">
+        <div
+          style="display:inline-flex;align-items:center;gap:8px;background:rgba(52,199,89,.1);border:.5px solid rgba(52,199,89,.2);color:var(--green);font-size:13px;font-weight:500;padding:8px 20px;border-radius:980px">
+          ✓ Free sample image available on all packages — see quality before you commit
+        </div>
+      </div>
+      <div class="price-grid" style="margin-top:48px">
+        <div class="pc">
+          <div class="pc-tier">Starter</div>
+          <div class="pc-price"><sup>€</sup>297</div>
+          <div class="pc-desc">For sellers testing conversion-first design. Ideal for 1–2 products.</div>
+          <div class="pc-div"></div>
+          <ul class="pc-feats">
+            <li class="pc-feat">5 optimised listing images</li>
+            <li class="pc-feat">1 AI lifestyle scene (room of choice)</li>
+            <li class="pc-feat">Main image A/B variant</li>
+            <li class="pc-feat">Competitor visual analysis report</li>
+            <li class="pc-feat">2 revision rounds</li>
+            <li class="pc-feat">120-hour turnaround</li>
+            <li class="pc-feat">Print-ready + web files</li>
+          </ul>
+          <button class="btn-pc btn-gh" onclick="pg('contact')">Get Started →</button>
+        </div>
+        <div class="pc hero-plan">
+          <div class="pc-glow"></div>
+          <div class="pc-pop">Best Value</div>
+          <div class="pc-tier">Growth</div>
+          <div class="pc-price"><sup>€</sup>647</div>
+          <div class="pc-desc">For serious sellers ready to dominate their category.</div>
+          <div class="pc-div"></div>
+          <ul class="pc-feats">
+            <li class="pc-feat">Full 7-image listing stack</li>
+            <li class="pc-feat">3 AI lifestyle scenes</li>
+            <li class="pc-feat">Custom infographic design</li>
+            <li class="pc-feat">Feature highlight carousel</li>
+            <li class="pc-feat">Full competitor research report</li>
+            <li class="pc-feat">A/B test variants (2 mains)</li>
+            <li class="pc-feat">3 revision rounds · 120h delivery</li>
+          </ul>
+          <button class="btn-pc btn-acc" onclick="pg('contact')">Get Started →</button>
+        </div>
+        <div class="pc">
+          <div class="pc-tier">Pro</div>
+          <div class="pc-price"><sup>€</sup>997</div>
+          <div class="pc-desc">Total brand domination for category-defining Amazon brands.</div>
+          <div class="pc-div"></div>
+          <ul class="pc-feats">
+            <li class="pc-feat">Everything in Growth</li>
+            <li class="pc-feat">Amazon A+ Content (5 modules)</li>
+            <li class="pc-feat">5 AI lifestyle scenes</li>
+            <li class="pc-feat">3 social media ad creatives</li>
+            <li class="pc-feat">Brand storefront concept</li>
+            <li class="pc-feat">Unlimited revision rounds</li>
+            <li class="pc-feat">Priority 24-hour turnaround</li>
+            <li class="pc-feat">1-on-1 strategy call (60 min)</li>
+            <li class="pc-feat">30-day performance follow-up</li>
+          </ul>
+          <button class="btn-pc btn-gh" onclick="pg('contact')">Get Started →</button>
+        </div>
+      </div>
+      <div class="faq-wrap">
+        <h3
+          style="font-family:var(--font-serif);font-size:40px;font-weight:700;letter-spacing:-.03em;text-align:center;margin-bottom:48px">
+          Common questions.</h3>
+        <div id="faqCon"></div>
+      </div>
+    </div>
+    <div class="fcta" style="min-height:400px">
+      <div class="fcta-bg"></div>
+      <div class="fcta-ov"></div>
+      <div class="fcta-body">
+        <h2 style="font-size:clamp(32px,4vw,58px)">Still unsure? Get a free<br>sample first.</h2>
+        <p>See the quality and strategy before you spend a single euro. No commitment required.</p>
+        <button class="btn-p" style="font-size:16px;padding:18px 40px" onclick="pg('contact')">Request Free Sample
+          →</button>
+      </div>
+    </div>
+    <footer
+      style="background:var(--near-black);border-top:.5px solid rgba(255,255,255,.07);padding:36px 88px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px">
+      <span class="ft-copy">© 2025 AI Product Studio</span>
+      <div style="display:flex;gap:24px">
+        <a href="#" class="ft-copy" onclick="pg('home');return false">Home</a>
+        <a href="#" class="ft-copy" onclick="pg('portfolio');return false">Portfolio</a>
+        <a href="#" class="ft-copy" onclick="pg('contact');return false">Contact</a>
+      </div>
+    </footer>
+  </div>
+
+  <div id="contact" class="page">
+    <div class="con-wrap">
+      <div class="con-left">
+        <div class="cl-body">
+          <div class="cin-eye" style="margin-bottom:20px">Get In Touch</div>
+          <h1 class="cl-h1">Let's build your<br><em style="color:var(--accent)">best-selling</em><br>listing together.
+          </h1>
+          <p class="cl-p">Tell us about your product and we'll create a free sample image — so you can see the quality
+            and strategy before spending a single euro.</p>
+          <div class="cmethods">
+            <a href="https://wa.me/393509817420" class="cmi" target="_blank">
+              <span class="cmi-ico">💬</span>
+              <div>
+                <div class="cmi-lbl">WhatsApp</div>
+                <div class="cmi-val">+39 350 981 7420</div>
+              </div>
+            </a>
+            <a href="mailto:hello@aiproductstudio.com" class="cmi">
+              <span class="cmi-ico">✉️</span>
+              <div>
+                <div class="cmi-lbl">Email</div>
+                <div class="cmi-val">hello@aiproductstudio.com</div>
+              </div>
+            </a>
+            <div class="cmi" style="cursor:default">
+              <span class="cmi-ico">⚡</span>
+              <div>
+                <div class="cmi-lbl">Response Time</div>
+                <div class="cmi-val">Within 2 hours · Mon–Fri</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="con-right">
+        <div class="cr-title">Request Your Free Sample</div>
+        <div class="cr-sub">Fill in the form and we'll be in touch within 2 hours.</div>
+        <div class="form-row">
+          <div class="fg" id="fg-fname">
+            <label>First Name <span class="req">*</span></label>
+            <input type="text" id="f-fname" placeholder="Marco">
+            <div class="field-error">Please enter your first name</div>
+          </div>
+          <div class="fg" id="fg-lname">
+            <label>Last Name <span class="req">*</span></label>
+            <input type="text" id="f-lname" placeholder="Rossi">
+            <div class="field-error">Please enter your last name</div>
+          </div>
+        </div>
+        <div class="fg" id="fg-email">
+          <label>Email Address <span class="req">*</span></label>
+          <input type="email" id="f-email" placeholder="marco@yourbrand.com">
+          <div class="field-error">Please enter a valid email address</div>
+        </div>
+        <div class="fg" id="fg-asin">
+          <label>Amazon ASIN or Product Link <span class="req">*</span></label>
+          <input type="text" id="f-asin" placeholder="B0XXXXXXXXX or full URL">
+          <div class="field-error">Please enter your Amazon ASIN or product link</div>
+        </div>
+        <div class="form-row">
+          <div class="fg" id="fg-cat">
+            <label>Category <span class="req">*</span></label>
+            <select id="f-cat">
+              <option value="">Select...</option>
+              <option>Beauty & Personal Care</option>
+              <option>Home & Kitchen</option>
+              <option>Sports & Fitness</option>
+              <option>Electronics & Tech</option>
+              <option>Pet Supplies</option>
+              <option>Baby & Kids</option>
+              <option>Food & Grocery</option>
+              <option>Clothing & Apparel</option>
+              <option>Other</option>
+            </select>
+            <div class="field-error">Please select a category</div>
+          </div>
+          <div class="fg">
+            <label>Package</label>
+            <select id="f-pkg">
+              <option value="">Select...</option>
+              <option>Starter — €297</option>
+              <option>Growth — €647</option>
+              <option>Pro — €997</option>
+              <option>Not sure yet</option>
+            </select>
+          </div>
+        </div>
+        <div class="fg">
+          <label>Your Goals (optional)</label>
+          <textarea id="f-goals"
+            placeholder="e.g. Low CTR, poor conversion, want to beat top 3 sellers in my category..."></textarea>
+        </div>
+        <button class="btn-sub" id="submitBtn" onclick="handleSubmit()">Send Request & Get Free Sample →</button>
+        <p class="form-note">🔒 No spam, no hard sell. Just great design and a conversation about your goals.</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = 'http://localhost:3000/api';
+
+    // ─── VISITOR TRACKING (Now sends to server) ───
+    (async function () {
+      try {
+        if (!sessionStorage.getItem('aps_tracked')) {
+          await fetch(`${API_URL}/visits`, { method: 'POST' });
+          sessionStorage.setItem('aps_tracked', 'true');
+        }
+      } catch (e) { console.error("Tracking error", e); }
+    })();
+
+    // ─── CUSTOM CURSOR ───
+    const dot = document.getElementById('cursorDot');
+    const ring = document.getElementById('cursorRing');
+    let mx = 0, my = 0, rx = 0, ry = 0;
+    document.addEventListener('mousemove', e => {
+      mx = e.clientX; my = e.clientY;
+      dot.style.left = mx + 'px'; dot.style.top = my + 'px';
+    });
+    function animCursor() {
+      rx += (mx - rx) * .14; ry += (my - ry) * .14;
+      ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
+      requestAnimationFrame(animCursor);
+    }
+    animCursor();
+    document.querySelectorAll('a,button,select,input,textarea').forEach(el => {
+      el.addEventListener('mouseenter', () => {
+        ring.querySelector('.cursor-ring').style.width = '52px';
+        ring.querySelector('.cursor-ring').style.height = '52px';
+        ring.querySelector('.cursor-ring').style.borderColor = 'var(--accent)';
+      });
+      el.addEventListener('mouseleave', () => {
+        ring.querySelector('.cursor-ring').style.width = '36px';
+        ring.querySelector('.cursor-ring').style.height = '36px';
+        ring.querySelector('.cursor-ring').style.borderColor = 'rgba(255,255,255,.5)';
+      });
+    });
+
+    // ─── SCROLL PROGRESS ───
+    window.addEventListener('scroll', () => {
+      const prog = (scrollY / (document.documentElement.scrollHeight - innerHeight)) * 100;
+      document.getElementById('scrollProgress').style.width = Math.min(prog, 100) + '%';
+      document.getElementById('sb').classList.toggle('on', scrollY > 700);
+      updateSecDots();
+    });
+
+    // ─── SECTION NAV DOTS ───
+    const secIds = ['sec0', 'sec1', 'sec2', 'sec3', 'sec4', 'sec5', 'sec6'];
+    function updateSecDots() {
+      const dots = document.querySelectorAll('.sec-dot');
+      let active = 0;
+      secIds.forEach((id, i) => {
+        const el = document.getElementById(id);
+        if (el) {
+          const r = el.getBoundingClientRect();
+          if (r.top <= innerHeight / 2) active = i;
+        }
+      });
+      dots.forEach((d, i) => d.classList.toggle('active', i === active));
+    }
+    function scrollToSection(i) {
+      const el = document.getElementById(secIds[i]);
+      if (el) el.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // ─── PAGE NAVIGATION ───
+    function pg(id) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      setTimeout(init3DScroll, 100);
+      if (id === 'home') setTimeout(initCounters, 300);
+      if (id === 'pricing') setTimeout(() => {
+        document.querySelectorAll('#pricing .s3d,#pricing .proc-step').forEach(el => {
+          el.classList.add('in');
+        });
+      }, 200);
+      try { localStorage.setItem('aps_last_page', id); } catch (e) { }
+    }
+
+    // ─── 3D SCROLL REVEAL ───
+    function init3DScroll() {
+      const obs = new IntersectionObserver(entries => {
+        entries.forEach(e => {
+          if (e.isIntersecting) {
+            setTimeout(() => e.target.classList.add('in'), parseFloat(getComputedStyle(e.target).transitionDelay || 0) * 1000);
+            obs.unobserve(e.target);
+          }
+        });
+      }, { threshold: 0.12, rootMargin: '0px 0px -60px 0px' });
+      document.querySelectorAll('.s3d,.s3d-l,.s3d-r,.proc-step').forEach(el => {
+        el.classList.remove('in');
+        obs.observe(el);
+      });
+      // Process steps use same observer
+      const procObs = new IntersectionObserver(entries => {
+        entries.forEach(e => {
+          if (e.isIntersecting) {
+            e.target.classList.add('in');
+            procObs.unobserve(e.target);
+          }
+        });
+      }, { threshold: 0.1 });
+      document.querySelectorAll('.proc-step').forEach(el => {
+        el.classList.remove('in');
+        el.classList.add('s3d');
+        procObs.observe(el);
+      });
+    }
+    init3DScroll();
+
+    // ─── COUNTERS ───
+    const ctargets = { c1: 47, c2: 31, c3: 200, c4: 120 };
+    const progTargets = { sp0: 78, sp1: 62, sp2: 92, sp3: 55 };
+    let cDone = false;
+    function initCounters() {
+      if (cDone) return; cDone = true;
+      Object.entries(ctargets).forEach(([id, t]) => {
+        const el = document.getElementById(id); if (!el) return;
+        let cur = 0; const step = t / 60;
+        const tmr = setInterval(() => {
+          cur = Math.min(cur + step, t); el.textContent = Math.round(cur);
+          if (cur >= t) clearInterval(tmr);
+        }, 18);
+      });
+      // Animate progress bars
+      setTimeout(() => {
+        Object.entries(progTargets).forEach(([id, w]) => {
+          const el = document.getElementById(id); if (el) el.style.width = w + '%';
+        });
+        document.querySelectorAll('.stat-item').forEach((el, i) => {
+          setTimeout(() => el.classList.add('counted'), i * 150);
+        });
+      }, 400);
+    }
+    // Trigger counters when stats section is visible
+    const statsObs = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting) initCounters();
+    }, { threshold: 0.3 });
+    const statsEl = document.getElementById('statsSection');
+    if (statsEl) statsObs.observe(statsEl);
+
+    // ─── PARALLAX ───
+    let ticking = false;
+    window.addEventListener('scroll', () => {
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          document.querySelectorAll('.cin-bg').forEach(bg => {
+            const r = bg.parentElement.getBoundingClientRect();
+            if (r.bottom > 0 && r.top < innerHeight) {
+              const offset = (r.top + r.height / 2 - innerHeight / 2) * 0.1;
+              bg.style.transform = `translateY(${offset}px) scale(1.12)`;
+            }
+          });
+          ticking = false;
+        });
+        ticking = true;
+      }
+    });
+
+    // ─── BEFORE/AFTER ───
+    const baSl = document.getElementById('baSlider');
+    const baB = document.getElementById('baBefore');
+    const baL = document.getElementById('baLine');
+    if (baSl) {
+      let drag = false;
+      function setBA(x) {
+        const r = baSl.getBoundingClientRect();
+        const p = Math.max(5, Math.min(95, ((x - r.left) / r.width) * 100));
+        baB.style.clipPath = `inset(0 ${100 - p}% 0 0)`;
+        baL.style.left = p + '%';
+      }
+      baSl.addEventListener('mousedown', e => { drag = true; setBA(e.clientX); });
+      document.addEventListener('mousemove', e => { if (drag) setBA(e.clientX); });
+      document.addEventListener('mouseup', () => drag = false);
+      baSl.addEventListener('touchstart', () => drag = true, { passive: true });
+      document.addEventListener('touchmove', e => { if (drag) setBA(e.touches[0].clientX); }, { passive: true });
+      document.addEventListener('touchend', () => drag = false);
+    }
+
+    // ─── FAQ ───
+    const faqs = [
+      { q: 'What format do I receive my images in?', a: 'All images are delivered as JPEG (sRGB, 3000×3000px) optimised for Amazon\'s requirements, plus PNG files for additional use. Print-ready files are included in all packages.' },
+      { q: 'Do I need to send my physical product?', a: 'No — just send high-quality photos of your product (even smartphone photos work), your ASIN link, and any brand notes. We handle everything from there.' },
+      { q: 'How realistic are the AI lifestyle images?', a: 'Very realistic. Our process combines AI generation with manual refinement by our designers. Every lifestyle image is checked multiple times before delivery. Most clients can\'t distinguish them from real photoshoots.' },
+      { q: 'What if I\'m not satisfied with the results?', a: 'We offer 2–3 revision rounds depending on your package. Our entire goal is that you\'re genuinely excited to upload these images. In the rare case something isn\'t right, we\'ll keep working until it is.' },
+      { q: 'Can I try before committing to a full package?', a: 'Yes — that\'s exactly what the free sample is for. Request one via the contact form and we\'ll create one image for your product so you can judge quality and strategy firsthand, with zero obligation.' },
+      { q: 'How long does delivery take?', a: 'Standard turnaround is 120 hours (5 business days) from when we receive your materials. Pro package orders are prioritised at 24 hours. We\'ll always confirm the exact timeline when you get in touch.' },
+    ];
+    const fc = document.getElementById('faqCon');
+    if (fc) {
+      faqs.forEach((f, i) => {
+        const d = document.createElement('div');
+        d.className = 'faq-item';
+        d.innerHTML = `<div class="faq-q" onclick="toggleFaq(${i})"><span class="faq-qt">${f.q}</span><span class="faq-ico" id="fi${i}">+</span></div><div class="faq-a" id="fa${i}">${f.a}</div>`;
+        fc.appendChild(d);
+      });
+    }
+    function toggleFaq(i) {
+      const was = document.querySelectorAll('.faq-item')[i].classList.contains('open');
+      document.querySelectorAll('.faq-item').forEach(el => el.classList.remove('open'));
+      if (!was) document.querySelectorAll('.faq-item')[i].classList.add('open');
+    }
+
+    // ─── TOAST HELPER ───
+    function showToast(msg, duration = 4000) {
+      const t = document.getElementById('toast');
+      document.getElementById('toastMsg').textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), duration);
+    }
+
+    // ─── FORM VALIDATION + SUBMISSION (Now sends to Server) ───
+    function validateField(id, groupId, condition) {
+      const el = document.getElementById(id);
+      const grp = document.getElementById(groupId);
+      if (!grp) return condition(el);
+      if (condition(el)) {
+        grp.classList.remove('has-error');
+        if (el) el.classList.remove('error');
+        return true;
+      } else {
+        grp.classList.add('has-error');
+        if (el) el.classList.add('error');
+        return false;
+      }
+    }
+    function isValidEmail(v) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); }
+
+    async function handleSubmit() {
+      const fname = document.getElementById('f-fname').value.trim();
+      const lname = document.getElementById('f-lname').value.trim();
+      const email = document.getElementById('f-email').value.trim();
+      const asin = document.getElementById('f-asin').value.trim();
+      const cat = document.getElementById('f-cat').value;
+      const pkg = document.getElementById('f-pkg')?.value || '';
+      const goals = document.getElementById('f-goals')?.value.trim() || '';
+
+      let valid = true;
+      if (!validateField('f-fname', 'fg-fname', el => el.value.trim().length > 0)) valid = false;
+      if (!validateField('f-lname', 'fg-lname', el => el.value.trim().length > 0)) valid = false;
+      if (!validateField('f-email', 'fg-email', el => isValidEmail(el.value.trim()))) valid = false;
+      if (!validateField('f-asin', 'fg-asin', el => el.value.trim().length > 2)) valid = false;
+      if (!validateField('f-cat', 'fg-cat', el => el.value !== '')) valid = false;
+
+      if (!valid) {
+        showToast('Please fill all required fields correctly ↑');
+        return;
+      }
+
+      const btn = document.getElementById('submitBtn');
+      btn.textContent = 'Sending...';
+      btn.disabled = true;
+
+      // Send to your new backend
+      try {
+        await fetch(`${API_URL}/leads`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: `${fname} ${lname}`,
+            email: email,
+            asin: asin,
+            category: cat,
+            package: pkg || 'Not specified',
+            goals: goals,
+            source: 'website_form'
+          })
+        });
+      } catch (error) {
+        console.error("Error sending lead to backend", error);
+        showToast('Error connecting to server.');
+        btn.textContent = 'Send Request & Get Free Sample →';
+        btn.disabled = false;
+        return;
+      }
+
+      // WhatsApp notification
+      const waMsg = encodeURIComponent(
+        `🚀 *New Lead — AI Product Studio*\n\n` +
+        `👤 *Name:* ${fname} ${lname}\n` +
+        `📧 *Email:* ${email}\n` +
+        `🛍️ *ASIN:* ${asin}\n` +
+        `📦 *Category:* ${cat}\n` +
+        `💰 *Package:* ${pkg || 'Not specified'}\n` +
+        `🎯 *Goals:* ${goals || '—'}\n\n` +
+        `_Sent from aiproductstudio.com_`
+      );
+      window.open(`https://wa.me/393509817420?text=${waMsg}`, '_blank');
+
+      // Email via mailto
+      const mailSubject = encodeURIComponent(`New Lead: ${fname} ${lname} — ${cat}`);
+      const mailBody = encodeURIComponent(
+        `New Form Submission\n\nName: ${fname} ${lname}\nEmail: ${email}\nASIN: ${asin}\nCategory: ${cat}\nPackage: ${pkg || 'Not specified'}\nGoals: ${goals || '—'}`
+      );
+      setTimeout(() => {
+        window.location.href = `mailto:hello@aiproductstudio.com?subject=${mailSubject}&body=${mailBody}`;
+      }, 800);
+
+      // Update UI
+      btn.textContent = '✓ Request sent! We\'ll be in touch within 2 hours.';
+      btn.style.background = 'var(--green)';
+      btn.style.boxShadow = '0 4px 24px rgba(52,199,89,.4)';
+
+      showToast('✓ Request submitted! Expect our reply within 2 hours.', 5000);
+
+      // Reset form after delay
+      setTimeout(() => {
+        ['f-fname', 'f-lname', 'f-email', 'f-asin', 'f-goals'].forEach(id => {
+          const el = document.getElementById(id);
+          if (el) el.value = '';
+        });
+        ['f-cat', 'f-pkg'].forEach(id => {
+          const el = document.getElementById(id);
+          if (el) el.value = '';
+        });
+        btn.textContent = 'Send Request & Get Free Sample →';
+        btn.style.background = 'var(--accent)';
+        btn.style.boxShadow = '0 4px 24px rgba(255,107,53,.4)';
+        btn.disabled = false;
+      }, 6000);
+    }
+
+    // Live validation on blur
+    ['f-fname', 'f-lname', 'f-email', 'f-asin'].forEach(id => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.addEventListener('blur', () => {
+        const grpId = 'fg-' + id.replace('f-', '');
+        if (id === 'f-email') {
+          validateField(id, grpId, e => isValidEmail(e.value.trim()));
+        } else {
+          validateField(id, grpId, e => e.value.trim().length > 0);
+        }
+      });
+      el.addEventListener('input', () => {
+        el.classList.remove('error');
+        const grp = document.getElementById('fg-' + id.replace('f-', ''));
+        if (grp) grp.classList.remove('has-error');
+      });
+    });
+  </script>
+</body>
+
+</html>
