@@ -1127,6 +1127,15 @@
       background: var(--black);
       padding: 120px 44px
     }
+    
+    .ba-wrap {
+      max-width: 760px;
+      margin: 72px auto 0;
+      border-radius: 24px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, .1);
+      box-shadow: 0 48px 120px rgba(0, 0, 0, .6);
+    }
 
     .ba-results {
       display: flex;
@@ -1138,15 +1147,16 @@
       padding: 36px 48px;
       text-align: center; /* Keeps text neat */
     }
-
-.ba-slider {
-  position: relative;
-  aspect-ratio: 1 / 1;         /* Forces the container to be perfectly square */
-  max-height: 80vh;            /* Prevents it from getting too massive on large desktop screens */
-  cursor: col-resize;
-  user-select: none;
-  background: var(--dark)
-}
+    
+    .ba-slider {
+      position: relative;
+      aspect-ratio: 1 / 1;         
+      width: 100%; /* Forces it to fill the wrapper */
+      margin: 0 auto; /* Centers it perfectly */
+      cursor: col-resize;
+      user-select: none;
+      background: var(--dark);
+    }
 
     .ba-side {
       position: absolute;
