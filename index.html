@@ -1137,13 +1137,14 @@
       box-shadow: 0 48px 120px rgba(0, 0, 0, .6)
     }
 
-    .ba-slider {
-      position: relative;
-      height: 560px;
-      cursor: col-resize;
-      user-select: none;
-      background: var(--dark)
-    }
+.ba-slider {
+  position: relative;
+  aspect-ratio: 1 / 1;         /* Forces the container to be perfectly square */
+  max-height: 80vh;            /* Prevents it from getting too massive on large desktop screens */
+  cursor: col-resize;
+  user-select: none;
+  background: var(--dark)
+}
 
     .ba-side {
       position: absolute;
